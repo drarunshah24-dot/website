@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1000" viewBox="0 0 800 1000">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#e2e8f0"/>
+      <stop offset="100%" style="stop-color:#cbd5e1"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="1000" fill="url(#bg)" rx="24"/>
+  <!-- Silhouette head -->
+  <circle cx="400" cy="320" r="120" fill="#94a3b8"/>
+  <!-- Silhouette body -->
+  <path d="M200 1000 Q200 650 400 600 Q600 650 600 1000 Z" fill="#94a3b8"/>
+  <!-- Stethoscope hint -->
+  <circle cx="400" cy="520" r="30" fill="none" stroke="#64748b" stroke-width="4"/>
+  <line x1="400" y1="490" x2="400" y2="450" stroke="#64748b" stroke-width="4"/>
+  <!-- Text -->
+  <text x="400" y="880" text-anchor="middle" font-family="system-ui, sans-serif" font-size="24" fill="#475569" font-weight="600">Photo Coming Soon</text>
+</svg>
