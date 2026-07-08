@@ -6,6 +6,9 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { BookOpen, ArrowLeft, Calendar, User, CheckCircle2 } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 interface BookFrontmatter {
   title: string;
   cover: string;

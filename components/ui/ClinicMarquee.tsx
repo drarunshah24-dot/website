@@ -1,46 +1,62 @@
 "use client";
 
+import React, { useState, useEffect } from "react";
 import { Camera } from "lucide-react";
 import { motion } from "motion/react";
 
-const galleryImages = [
+export interface GalleryItem {
+  title: string;
+  image: string;
+}
+
+const defaultGalleryImages = [
   {
-    src: "https://placehold.co/600x400/f8fafc/475569?text=Modern+Waiting+Area",
-    alt: "Modern Waiting Area",
-    label: "Modern Waiting Area",
+    image: "https://placehold.co/600x400/f8fafc/475569?text=Modern+Waiting+Area",
+    title: "Modern Waiting Area",
   },
   {
-    src: "https://placehold.co/600x400/f8fafc/475569?text=Advanced+Laser+Tech",
-    alt: "Advanced Laser Tech",
-    label: "Advanced Laser Suite",
+    image: "https://placehold.co/600x400/f8fafc/475569?text=Advanced+Laser+Tech",
+    title: "Advanced Laser Suite",
   },
   {
-    src: "https://placehold.co/600x400/f8fafc/475569?text=Consultation+Room",
-    alt: "Consultation Room",
-    label: "Private Consultation",
+    image: "https://placehold.co/600x400/f8fafc/475569?text=Consultation+Room",
+    title: "Private Consultation",
   },
   {
-    src: "https://placehold.co/600x400/f8fafc/475569?text=Clean+Pharmacy",
-    alt: "Clean Pharmacy",
-    label: "On-Site Pharmacy",
+    image: "https://placehold.co/600x400/f8fafc/475569?text=Clean+Pharmacy",
+    title: "On-Site Pharmacy",
   },
   {
-    src: "https://placehold.co/600x400/f8fafc/475569?text=Recovery+Suite",
-    alt: "Recovery Suite",
-    label: "Comfort Recovery Suite",
+    image: "https://placehold.co/600x400/f8fafc/475569?text=Recovery+Suite",
+    title: "Comfort Recovery Suite",
   },
   {
-    src: "https://placehold.co/600x400/f8fafc/475569?text=Diagnostics+Lab",
-    alt: "Diagnostics Lab",
-    label: "Advanced Diagnostics Lab",
+    image: "https://placehold.co/600x400/f8fafc/475569?text=Diagnostics+Lab",
+    title: "Advanced Diagnostics Lab",
   },
 ];
 
-// Duplicate the array 4 times (24 images total) so all items sit in ONE single flex track.
-// Animating from 0% to -50% ensures a seamless loop that will never run out of width or overlap.
-const duplicatedImages = [...galleryImages, ...galleryImages, ...galleryImages, ...galleryImages];
+export function ClinicMarquee({ initialItems = [] }: { initialItems?: GalleryItem[] }) {
+  const [items, setItems] = useState<GalleryItem[]>(initialItems.length > 0 ? initialItems : defaultGalleryImages);
 
-export function ClinicMarquee() {
+  useEffect(() => {
+    fetch("/api/admin/content?type=gallery")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.items && data.items.length > 0) {
+          setItems(data.items.map((i: any) => ({
+            title: i.title || "Clinic Facility",
+            image: i.image || "https://placehold.co/600x400/f8fafc/475569?text=Facility+Photo",
+          })));
+        }
+      })
+      .catch((err) => console.error("Error loading live gallery:", err));
+  }, []);
+
+  const list = items.length > 0 ? items : defaultGalleryImages;
+  // Duplicate array 4 times so all items sit in ONE single flex track
+  const duplicatedImages = [...list, ...list, ...list, ...list];
+
   return (
     <div className="relative w-full overflow-hidden [mask-image:linear-gradient(to_right,transparent_0,black_8%,black_92%,transparent_100%)] py-4">
       {/* Framer Motion GPU-accelerated infinite loop. 
@@ -62,13 +78,13 @@ export function ClinicMarquee() {
             <div className="relative aspect-[4/3] overflow-hidden bg-slate-100">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={item.src}
-                alt={item.alt}
+                src={item.image || (item as any).src}
+                alt={item.title || (item as any).alt}
                 className="w-full h-full object-cover transition-transform duration-700 group-hover/card:scale-105"
               />
               <div className="absolute bottom-3 left-3 bg-white/90 backdrop-blur-md px-3.5 py-1.5 rounded-full shadow-sm border border-white/50 flex items-center gap-2">
                 <Camera className="w-3.5 h-3.5 text-primary" />
-                <span className="text-xs font-bold text-slate-800">{item.label}</span>
+                <span className="text-xs font-bold text-slate-800">{item.title || (item as any).label}</span>
               </div>
             </div>
           </div>

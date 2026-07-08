@@ -8,6 +8,9 @@ import Link from "next/link";
 import Script from "next/script";
 import { Calendar, User, ArrowLeft, BookOpen, Share2 } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 interface BlogFrontmatter {
   title: string;
   date: string;

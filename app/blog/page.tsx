@@ -5,6 +5,9 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Button } from "@/components/ui/button";
 import { BookOpen, Calendar, ArrowRight, MessageCircle, User } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export const metadata = generateMetadata({
   title: "Patient Education Blog | National Urology Center",
   description:

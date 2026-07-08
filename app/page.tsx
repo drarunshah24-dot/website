@@ -15,6 +15,9 @@ import { ClinicMarquee } from "@/components/ui/ClinicMarquee";
 const WHATSAPP_URL = "https://wa.me/9779744427743?text=I%20would%20like%20to%20book%20an%20appointment.";
 const PHONE_NUMBER = "+9779744427743";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export const metadata = generateMetadata({
   title: "National Urology Center - Dr. Arun Shah | Janakpur",
   description: "World-Class Urology Care in Janakpur by Dr. Arun Shah. Specializing in advanced laser surgery, kidney stones, and prostate health.",
@@ -227,11 +230,11 @@ export default function Home() {
               {books.map((book) => (
                 <Link key={book.slug} href={`/books/${book.slug}`} className="block h-full">
                   <div className="bg-white rounded-2xl shadow-md border border-slate-100 overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl group h-full flex flex-col cursor-pointer">
-                    <div className="aspect-[3/4] bg-gradient-to-br from-primary/5 to-primary/10 flex items-center justify-center p-8">
+                    <div className="aspect-[3/4] bg-gradient-to-br from-primary/5 to-primary/10 flex items-center justify-center p-8 overflow-hidden">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
-                        src="https://placehold.co/400x600/e2e8f0/475569?text=Book+Cover"
-                        alt="Book Cover Placeholder"
+                        src={book.frontmatter.cover || "https://placehold.co/400x600/e2e8f0/475569?text=Book+Cover"}
+                        alt={book.frontmatter.title || "Book Cover"}
                         className="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-500"
                       />
                     </div>
