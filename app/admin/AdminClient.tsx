@@ -408,6 +408,16 @@ export function AdminClient() {
 
       {/* Main Container */}
       <main className="flex-1 container mx-auto px-4 md:px-6 py-8">
+        {/* Vercel Serverless Sync Notice */}
+        <div className="max-w-4xl mx-auto mb-6 p-4 bg-blue-50/80 border border-blue-200/80 rounded-2xl flex items-start gap-3 text-xs text-blue-900 shadow-sm">
+          <div className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center shrink-0 font-bold">
+            i
+          </div>
+          <div>
+            <span className="font-bold">Vercel Live Deployment Sync:</span> To save new books, articles, or photos permanently on live Vercel servers, add <code className="bg-blue-100 px-1.5 py-0.5 rounded font-mono font-semibold">GITHUB_TOKEN</code> to your Vercel Project Environment Variables. All edits will automatically commit directly to your GitHub repository and go live within seconds.
+          </div>
+        </div>
+
         {activeSection === "hero" ? (
           /* 1ST PAGE DOCTOR HERO PHOTO MANAGER */
           <div className="max-w-3xl mx-auto">

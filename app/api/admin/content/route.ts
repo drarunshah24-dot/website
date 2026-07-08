@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
+import { saveToGitHub, deleteFromGitHub } from "@/lib/github";
 
 const contentDir = path.join(process.cwd(), "content");
 const settingsFile = path.join(contentDir, "settings.json");
@@ -65,8 +66,31 @@ export async function POST(req: Request) {
     const { type, slug, title, date, author, category, draft, image, description, content } = body;
 
     if (type === "settings") {
-      if (!fs.existsSync(contentDir)) fs.mkdirSync(contentDir, { recursive: true });
-      fs.writeFileSync(settingsFile, JSON.stringify(body.settings, null, 2), "utf8");
+      const settingsContent = JSON.stringify(body.settings, null, 2);
+      let localSuccess = false;
+      try {
+        if (!fs.existsSync(contentDir)) fs.mkdirSync(contentDir, { recursive: true });
+        fs.writeFileSync(settingsFile, settingsContent, "utf8");
+        localSuccess = true;
+      } catch {
+        localSuccess = false;
+      }
+
+      if (process.env.GITHUB_TOKEN) {
+        const ghRes = await saveToGitHub("content/settings.json", settingsContent, "Update settings.json via Admin Portal");
+        if (!ghRes.success && !localSuccess) {
+          return NextResponse.json({ success: false, error: ghRes.error }, { status: 500 });
+        }
+      } else if (!localSuccess) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: "Vercel Serverless is read-only. Please add GITHUB_TOKEN to your Vercel Environment Variables to save permanently.",
+          },
+          { status: 500 }
+        );
+      }
+
       return NextResponse.json({ success: true });
     }
 
@@ -75,13 +99,10 @@ export async function POST(req: Request) {
     }
 
     const folderPath = path.join(contentDir, type || "blog");
-    if (!fs.existsSync(folderPath)) {
-      fs.mkdirSync(folderPath, { recursive: true });
-    }
-
     const cleanSlug = slug.toLowerCase().replace(/[^a-z0-9-]+/g, "-").replace(/^-+|-+$/g, "");
     const ext = type === "books" || type === "gallery" ? "mdx" : "md";
     const filePath = path.join(folderPath, `${cleanSlug}.${ext}`);
+    const relativeGitHubPath = `content/${type || "blog"}/${cleanSlug}.${ext}`;
 
     const frontmatter: Record<string, unknown> = {
       title,
@@ -101,23 +122,41 @@ export async function POST(req: Request) {
     }
 
     const fileContent = matter.stringify(content || "", frontmatter);
+
+    let localSuccess = false;
     try {
-      fs.writeFileSync(filePath, fileContent, "utf8");
-    } catch (writeErr: unknown) {
-      const err = writeErr as { code?: string };
-      if (err.code === "EROFS" || err.code === "EACCES") {
-        const tmpFolder = path.join("/tmp", "content", type || "blog");
-        if (!fs.existsSync(tmpFolder)) fs.mkdirSync(tmpFolder, { recursive: true });
-        fs.writeFileSync(path.join(tmpFolder, `${cleanSlug}.${ext}`), fileContent, "utf8");
-      } else {
-        throw writeErr;
+      if (!fs.existsSync(folderPath)) {
+        fs.mkdirSync(folderPath, { recursive: true });
       }
+      fs.writeFileSync(filePath, fileContent, "utf8");
+      localSuccess = true;
+    } catch {
+      localSuccess = false;
+    }
+
+    if (process.env.GITHUB_TOKEN) {
+      const ghRes = await saveToGitHub(
+        relativeGitHubPath,
+        fileContent,
+        `Update ${type || "blog"}: ${title} via Admin Portal`
+      );
+      if (!ghRes.success && !localSuccess) {
+        return NextResponse.json({ success: false, error: ghRes.error }, { status: 500 });
+      }
+    } else if (!localSuccess) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Vercel Serverless is read-only. Please add GITHUB_TOKEN to your Vercel Environment Variables to commit directly to GitHub.",
+        },
+        { status: 500 }
+      );
     }
 
     return NextResponse.json({ success: true, slug: cleanSlug });
   } catch (error) {
     console.error("Error saving item:", error);
-    return NextResponse.json({ success: false, error: "Save failed: Filesystem read-only on Serverless." }, { status: 500 });
+    return NextResponse.json({ success: false, error: "Failed to save item" }, { status: 500 });
   }
 }
 
@@ -135,12 +174,29 @@ export async function DELETE(req: Request) {
     const filePathMd = path.join(folderPath, `${slug}.md`);
     const filePathMdx = path.join(folderPath, `${slug}.mdx`);
 
+    let ext = "md";
+    let localSuccess = false;
     if (fs.existsSync(filePathMd)) {
       fs.unlinkSync(filePathMd);
+      ext = "md";
+      localSuccess = true;
     } else if (fs.existsSync(filePathMdx)) {
       fs.unlinkSync(filePathMdx);
-    } else {
-      return NextResponse.json({ success: false, error: "Item not found" }, { status: 404 });
+      ext = "mdx";
+      localSuccess = true;
+    }
+
+    if (process.env.GITHUB_TOKEN) {
+      const relativePath = `content/${type}/${slug}.${ext}`;
+      await deleteFromGitHub(relativePath, `Delete ${type}: ${slug} via Admin Portal`);
+    } else if (!localSuccess) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Item not found or read-only on Vercel. Add GITHUB_TOKEN in Vercel to delete from GitHub.",
+        },
+        { status: 404 }
+      );
     }
 
     return NextResponse.json({ success: true });

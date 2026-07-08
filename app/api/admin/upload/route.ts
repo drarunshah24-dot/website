@@ -1,12 +1,13 @@
 import { NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
+import { saveToGitHub } from "@/lib/github";
 
 export async function POST(req: Request) {
   try {
     const formData = await req.formData();
     const file = formData.get("file") as File | null;
-    const targetName = formData.get("targetName") as string | null; // e.g. "dr-arun-shah-urologist-janakpur.jpg" for hero photo
+    const targetName = formData.get("targetName") as string | null;
 
     if (!file) {
       return NextResponse.json({ success: false, error: "No file provided" }, { status: 400 });
@@ -17,33 +18,51 @@ export async function POST(req: Request) {
 
     let fileName = targetName;
     let targetDir = path.join(process.cwd(), "public", "uploads");
+    let relativeGitHubPath = "public/uploads/";
 
-    // If updating the main hero doctor photo specifically
     if (targetName === "dr-arun-shah-urologist-janakpur.jpg") {
       targetDir = path.join(process.cwd(), "public");
       fileName = "dr-arun-shah-urologist-janakpur.jpg";
+      relativeGitHubPath = "public/dr-arun-shah-urologist-janakpur.jpg";
     } else if (!fileName) {
       const timestamp = Date.now();
       const cleanName = file.name.replace(/[^a-zA-Z0-9.-]/g, "-").toLowerCase();
       fileName = `${timestamp}-${cleanName}`;
+      relativeGitHubPath = `public/uploads/${fileName}`;
+    } else {
+      relativeGitHubPath = `public/uploads/${fileName}`;
     }
 
+    let localSuccess = false;
     try {
       if (!fs.existsSync(targetDir)) {
         fs.mkdirSync(targetDir, { recursive: true });
       }
       const filePath = path.join(targetDir, fileName);
       fs.writeFileSync(filePath, buffer);
-    } catch (writeErr: unknown) {
-      // In Vercel serverless environment, process.cwd() may be read-only
-      const err = writeErr as { code?: string; message?: string };
-      if (err.code === "EROFS" || err.code === "EACCES") {
-        const tmpDir = path.join("/tmp", "uploads");
-        if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir, { recursive: true });
-        fs.writeFileSync(path.join(tmpDir, fileName), buffer);
-      } else {
-        throw writeErr;
+      localSuccess = true;
+    } catch {
+      localSuccess = false;
+    }
+
+    // If running on Vercel or GITHUB_TOKEN is set, commit directly to GitHub repository!
+    if (process.env.GITHUB_TOKEN) {
+      const ghRes = await saveToGitHub(
+        relativeGitHubPath,
+        buffer,
+        `Upload image: ${fileName} via Admin Portal`
+      );
+      if (!ghRes.success && !localSuccess) {
+        return NextResponse.json({ success: false, error: ghRes.error }, { status: 500 });
       }
+    } else if (!localSuccess) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Vercel Serverless is read-only. Please add GITHUB_TOKEN to your Vercel Environment Variables to upload images permanently.",
+        },
+        { status: 500 }
+      );
     }
 
     const publicUrl = targetName === "dr-arun-shah-urologist-janakpur.jpg"
@@ -53,6 +72,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ success: true, url: publicUrl, fileName });
   } catch (error) {
     console.error("Error uploading file:", error);
-    return NextResponse.json({ success: false, error: "Upload failed: Filesystem read-only on Serverless." }, { status: 500 });
+    return NextResponse.json({ success: false, error: "Failed to upload image" }, { status: 500 });
   }
 }
