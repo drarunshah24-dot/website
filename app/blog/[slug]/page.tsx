@@ -110,7 +110,7 @@ export default async function BlogPostPage({ params }: Props) {
             <div className="aspect-[16/9] mb-10 rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 shadow-sm">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={`https://placehold.co/800x450/e2e8f0/475569?text=${encodeURIComponent(post.frontmatter.category || "Medical+Article")}`}
+                src={post.frontmatter.image || `https://placehold.co/800x450/e2e8f0/475569?text=${encodeURIComponent(post.frontmatter.category || "Medical+Article")}`}
                 alt={post.frontmatter.title}
                 className="w-full h-full object-cover"
               />

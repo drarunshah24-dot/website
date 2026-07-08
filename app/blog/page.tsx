@@ -60,7 +60,7 @@ export default function BlogPage() {
                   <div className="aspect-[16/9] relative bg-gradient-to-br from-primary/5 to-primary/10 overflow-hidden">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                      src={`https://placehold.co/600x400/e2e8f0/475569?text=${encodeURIComponent(post.frontmatter.category || "Medical+Article")}`}
+                      src={post.frontmatter.image || `https://placehold.co/600x400/e2e8f0/475569?text=${encodeURIComponent(post.frontmatter.category || "Medical+Article")}`}
                       alt={post.frontmatter.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
@@ -78,7 +78,7 @@ export default function BlogPage() {
                       </span>
                       <span className="flex items-center gap-1.5">
                         <User className="w-3.5 h-3.5 text-primary" />
-                        {post.frontmatter.author || "Dr. Arun Kumar Sah"}
+                        {post.frontmatter.author || "Dr. Arun Shah"}
                       </span>
                     </div>
                     <CardTitle className="text-xl group-hover:text-primary transition-colors leading-snug">
