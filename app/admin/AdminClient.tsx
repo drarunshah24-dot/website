@@ -15,17 +15,18 @@ import {
   LogOut,
   CheckCircle2,
   AlertCircle,
-  Sparkles,
   Eye,
   Save,
   ArrowLeft,
-  Calendar,
-  User,
-  Tag,
   RefreshCw,
+  BookOpen,
+  Building2,
+  Image as ImageIcon,
+  Upload,
+  UserCheck,
 } from "lucide-react";
 
-interface BlogPost {
+interface ContentItem {
   slug: string;
   title: string;
   date: string;
@@ -33,6 +34,7 @@ interface BlogPost {
   category: string;
   draft: boolean;
   image?: string;
+  description?: string;
   body: string;
 }
 
@@ -43,48 +45,58 @@ export function AdminClient() {
   const [loginError, setLoginError] = useState("");
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
-  // Content Manager States
-  const [posts, setPosts] = useState<BlogPost[]>([]);
-  const [isLoadingPosts, setIsLoadingPosts] = useState(true);
+  // Active Section Tab
+  const [activeSection, setActiveSection] = useState<"blog" | "books" | "gallery" | "hero">("blog");
+
+  // Content List State
+  const [items, setItems] = useState<ContentItem[]>([]);
+  const [isLoadingItems, setIsLoadingItems] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [filterCategory, setFilterCategory] = useState("All");
 
   // Editor States
   const [activeTab, setActiveTab] = useState<"list" | "editor">("list");
-  const [currentPost, setCurrentPost] = useState<BlogPost>({
+  const [currentItem, setCurrentItem] = useState<ContentItem>({
     slug: "",
     title: "",
     date: new Date().toISOString().split("T")[0],
     author: "Dr. Arun Shah",
-    category: "Treatments",
+    category: "General Urology",
     draft: false,
     image: "",
+    description: "",
     body: "",
   });
   const [editorPreview, setEditorPreview] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState("");
 
-  const loadPosts = async () => {
-    setIsLoadingPosts(true);
+  // Upload state
+  const [isUploading, setIsUploading] = useState(false);
+  const [heroPhotoTimestamp, setHeroPhotoTimestamp] = useState(Date.now());
+  const [heroUploadMessage, setHeroUploadMessage] = useState("");
+
+  const loadItems = async (section = activeSection) => {
+    if (section === "hero") return;
+    setIsLoadingItems(true);
     try {
-      const res = await fetch("/api/admin/posts");
+      const res = await fetch(`/api/admin/content?type=${section}`);
       const data = await res.json();
       if (data.success) {
-        setPosts(data.posts);
+        setItems(data.items);
       }
     } catch (err) {
-      console.error("Failed to load posts:", err);
+      console.error("Failed to load content:", err);
     } finally {
-      setIsLoadingPosts(false);
+      setIsLoadingItems(false);
     }
   };
 
   useEffect(() => {
-    if (isAuthenticated) {
-      loadPosts();
+    if (isAuthenticated && activeSection !== "hero") {
+      loadItems(activeSection);
+      setActiveTab("list");
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, activeSection]);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -99,63 +111,99 @@ export function AdminClient() {
         setIsAuthenticated(true);
         setIsLoggingIn(false);
       } else {
-        setLoginError("Invalid physician credentials. Default email: admin@drarunshah.com.np");
+        setLoginError("Invalid credentials. Default email: admin@drarunshah.com.np");
         setIsLoggingIn(false);
       }
-    }, 600);
+    }, 500);
   };
 
   const handleCreateNew = () => {
     const today = new Date().toISOString().split("T")[0];
-    setCurrentPost({
+    setCurrentItem({
       slug: "",
       title: "",
       date: today,
       author: "Dr. Arun Shah",
-      category: "Treatments",
+      category: activeSection === "books" ? "Urology Guide" : activeSection === "gallery" ? "Facility" : "Treatments",
       draft: false,
       image: "",
-      body: "Write your urology educational article here...",
+      description: activeSection === "books" ? "Short book description..." : "",
+      body: activeSection === "books" || activeSection === "gallery" ? "" : "Write your article markdown here...",
     });
     setActiveTab("editor");
     setSaveMessage("");
   };
 
-  const handleEdit = (post: BlogPost) => {
-    setCurrentPost({ ...post });
+  const handleEdit = (item: ContentItem) => {
+    setCurrentItem({ ...item });
     setActiveTab("editor");
     setSaveMessage("");
   };
 
   const handleDelete = async (slug: string) => {
-    if (!window.confirm("Are you sure you want to delete this article? This removes the file directly.")) {
-      return;
-    }
+    if (!window.confirm("Are you sure you want to delete this item?")) return;
     try {
-      const res = await fetch(`/api/admin/posts?slug=${encodeURIComponent(slug)}`, {
+      const res = await fetch(`/api/admin/content?type=${activeSection}&slug=${encodeURIComponent(slug)}`, {
         method: "DELETE",
       });
       const data = await res.json();
       if (data.success) {
-        setPosts(posts.filter((p) => p.slug !== slug));
+        setItems(items.filter((i) => i.slug !== slug));
       } else {
-        alert("Failed to delete post: " + data.error);
+        alert("Delete failed: " + data.error);
       }
     } catch (err) {
       console.error("Delete error:", err);
     }
   };
 
-  const handleSavePost = async (e: React.FormEvent) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, isHero = false) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    setHeroUploadMessage("");
+
+    const formData = new FormData();
+    formData.append("file", file);
+    if (isHero) {
+      formData.append("targetName", "dr-arun-shah-urologist-janakpur.jpg");
+    }
+
+    try {
+      const res = await fetch("/api/admin/upload", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+      if (data.success) {
+        if (isHero) {
+          setHeroPhotoTimestamp(Date.now());
+          setHeroUploadMessage("1st Page Doctor Photo updated successfully! It is now live across the homepage.");
+        } else {
+          setCurrentItem((prev) => ({ ...prev, image: data.url }));
+        }
+      } else {
+        alert("Upload failed: " + data.error);
+      }
+    } catch (err) {
+      console.error("Upload error:", err);
+      alert("Failed to upload image.");
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleSaveItem = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!currentPost.title) {
-      alert("Please enter a title for the article.");
+    if (!currentItem.title) {
+      alert("Please enter a title.");
       return;
     }
 
     const autoSlug =
-      currentPost.slug ||
-      currentPost.title
+      currentItem.slug ||
+      currentItem.title
         .toLowerCase()
         .replace(/[^a-z0-9-]+/g, "-")
         .replace(/^-+|-+$/g, "");
@@ -164,40 +212,37 @@ export function AdminClient() {
     setSaveMessage("");
 
     try {
-      const res = await fetch("/api/admin/posts", {
+      const res = await fetch("/api/admin/content", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          ...currentPost,
+          type: activeSection,
+          ...currentItem,
           slug: autoSlug,
         }),
       });
       const data = await res.json();
       if (data.success) {
-        setSaveMessage("Article saved directly to repository!");
-        await loadPosts();
+        setSaveMessage("Saved directly to filesystem!");
+        await loadItems(activeSection);
         setTimeout(() => {
           setActiveTab("list");
         }, 1200);
       } else {
-        alert("Error saving: " + data.error);
+        alert("Save failed: " + data.error);
       }
     } catch (err) {
       console.error("Save error:", err);
-      alert("Failed to save article.");
+      alert("Failed to save.");
     } finally {
       setIsSaving(false);
     }
   };
 
-  const filteredPosts = posts.filter((post) => {
-    const matchesSearch =
-      post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      post.slug.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory =
-      filterCategory === "All" || post.category === filterCategory;
-    return matchesSearch && matchesCategory;
-  });
+  const filteredItems = items.filter((item) =>
+    item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    item.slug.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   if (!isAuthenticated) {
     return (
@@ -208,9 +253,7 @@ export function AdminClient() {
               <ShieldCheck className="w-8 h-8" />
             </div>
             <h1 className="text-2xl font-bold text-slate-900">Physician Direct Login</h1>
-            <p className="text-sm text-slate-600 mt-1">
-              National Urology Center • Content Manager
-            </p>
+            <p className="text-sm text-slate-600 mt-1">National Urology Center • Content Manager</p>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-5">
@@ -224,7 +267,7 @@ export function AdminClient() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white transition"
+                  className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600"
                   placeholder="admin@drarunshah.com.np"
                   required
                 />
@@ -241,7 +284,7 @@ export function AdminClient() {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white transition"
+                  className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600"
                   placeholder="Enter any password to sign in"
                   required
                 />
@@ -258,37 +301,12 @@ export function AdminClient() {
             <button
               type="submit"
               disabled={isLoggingIn}
-              className="w-full py-3.5 px-6 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold rounded-xl shadow-lg shadow-blue-600/30 transition duration-200 flex items-center justify-center gap-2"
+              className="w-full py-3.5 px-6 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-lg shadow-blue-600/30 transition flex items-center justify-center gap-2"
             >
-              {isLoggingIn ? (
-                <>
-                  <RefreshCw className="w-5 h-5 animate-spin" />
-                  <span>Verifying Credentials...</span>
-                </>
-              ) : (
-                <>
-                  <Lock className="w-4 h-4" />
-                  <span>Direct Sign In</span>
-                </>
-              )}
+              <Lock className="w-4 h-4" />
+              <span>Direct Sign In</span>
             </button>
           </form>
-
-          <div className="mt-8 pt-6 border-t border-slate-200/80 text-center">
-            <p className="text-xs text-slate-500">
-              NMC Reg No: <span className="font-semibold text-slate-700">15706</span> • Gold Medalist
-            </p>
-            <div className="mt-2 flex items-center justify-center gap-3 text-xs text-blue-600 font-medium">
-              <Link href="/" className="hover:underline flex items-center gap-1">
-                <ExternalLink className="w-3.5 h-3.5" />
-                View Website
-              </Link>
-              <span>•</span>
-              <Link href="/decap" className="hover:underline">
-                Decap CMS UI
-              </Link>
-            </div>
-          </div>
         </div>
       </div>
     );
@@ -296,7 +314,7 @@ export function AdminClient() {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
-      {/* Top Navbar */}
+      {/* Top Header */}
       <header className="bg-white border-b border-slate-200 sticky top-0 z-30">
         <div className="container mx-auto px-4 md:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -307,9 +325,7 @@ export function AdminClient() {
               <h1 className="font-bold text-slate-900 text-base leading-tight">
                 National Urology Center
               </h1>
-              <p className="text-xs text-slate-500">
-                Direct Content Management System
-              </p>
+              <p className="text-xs text-slate-500">Full Website Content & Media Manager</p>
             </div>
           </div>
 
@@ -334,27 +350,154 @@ export function AdminClient() {
         </div>
       </header>
 
-      {/* Main Content */}
+      {/* Section Navigation Tabs */}
+      <div className="bg-white border-b border-slate-200">
+        <div className="container mx-auto px-4 md:px-6 flex items-center gap-2 overflow-x-auto py-3">
+          <button
+            onClick={() => setActiveSection("blog")}
+            className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition ${
+              activeSection === "blog"
+                ? "bg-blue-600 text-white shadow-md shadow-blue-600/20"
+                : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+            }`}
+          >
+            <FileText className="w-4 h-4" />
+            <span>Blog & Articles</span>
+          </button>
+
+          <button
+            onClick={() => setActiveSection("books")}
+            className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition ${
+              activeSection === "books"
+                ? "bg-blue-600 text-white shadow-md shadow-blue-600/20"
+                : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+            }`}
+          >
+            <BookOpen className="w-4 h-4" />
+            <span>Books & Publications</span>
+          </button>
+
+          <button
+            onClick={() => setActiveSection("gallery")}
+            className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition ${
+              activeSection === "gallery"
+                ? "bg-blue-600 text-white shadow-md shadow-blue-600/20"
+                : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+            }`}
+          >
+            <Building2 className="w-4 h-4" />
+            <span>State-of-the-Art Facilities</span>
+          </button>
+
+          <button
+            onClick={() => setActiveSection("hero")}
+            className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition ${
+              activeSection === "hero"
+                ? "bg-blue-600 text-white shadow-md shadow-blue-600/20"
+                : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+            }`}
+          >
+            <UserCheck className="w-4 h-4" />
+            <span>1st Page Doctor Photo</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Main Container */}
       <main className="flex-1 container mx-auto px-4 md:px-6 py-8">
-        {activeTab === "list" ? (
+        {activeSection === "hero" ? (
+          /* 1ST PAGE DOCTOR HERO PHOTO MANAGER */
+          <div className="max-w-3xl mx-auto">
+            <div className="bg-white p-6 md:p-8 rounded-3xl border border-slate-200 shadow-sm">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                  <UserCheck className="w-6 h-6" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-slate-900">
+                    1st Page Doctor Hero Photo Manager
+                  </h2>
+                  <p className="text-sm text-slate-600">
+                    Upload a new professional photograph for Dr. Arun Shah displayed prominently on the home page.
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center bg-slate-50 p-6 rounded-2xl border border-slate-200 mb-6">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-3">
+                    Current Live Homepage Portrait
+                  </p>
+                  <div className="relative aspect-[4/5] w-full max-w-[240px] mx-auto rounded-2xl overflow-hidden shadow-md border border-slate-200 bg-white">
+                    <img
+                      src={`/dr-arun-shah-urologist-janakpur.jpg?t=${heroPhotoTimestamp}`}
+                      alt="Dr. Arun Shah"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <p className="text-sm text-slate-700 leading-relaxed">
+                    Select a high-resolution JPG or PNG image of Dr. Arun Shah. The photo will automatically update across the 1st page Hero section.
+                  </p>
+
+                  <label className="block w-full cursor-pointer">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handleFileUpload(e, true)}
+                      disabled={isUploading}
+                      className="hidden"
+                    />
+                    <div className="w-full py-4 px-6 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-md flex items-center justify-center gap-2 transition">
+                      {isUploading ? (
+                        <>
+                          <RefreshCw className="w-5 h-5 animate-spin" />
+                          <span>Uploading & Replacing...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Upload className="w-5 h-5" />
+                          <span>Upload New Doctor Photo</span>
+                        </>
+                      )}
+                    </div>
+                  </label>
+
+                  {heroUploadMessage && (
+                    <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 text-xs font-medium flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" />
+                      <span>{heroUploadMessage}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : activeTab === "list" ? (
+          /* CONTENT LISTING TABLE (Blogs, Books, Gallery) */
           <div>
-            {/* Header / Actions */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
               <div>
                 <h2 className="text-2xl font-bold text-slate-900">
-                  Urology Articles & Educational Posts
+                  {activeSection === "blog" && "Urology Articles & Blog Posts"}
+                  {activeSection === "books" && "Books & Medical Publications"}
+                  {activeSection === "gallery" && "State-of-the-Art Clinic Facilities"}
                 </h2>
                 <p className="text-sm text-slate-600 mt-1">
-                  Manage patient education articles saved directly as Markdown files.
+                  {activeSection === "blog" && "Manage patient education articles and urology posts."}
+                  {activeSection === "books" && "Manage authored books and medical literature with cover photos."}
+                  {activeSection === "gallery" && "Add and edit state-of-the-art clinic equipment and facility photos."}
                 </p>
               </div>
 
               <div className="flex items-center gap-3">
                 <button
-                  onClick={loadPosts}
+                  onClick={() => loadItems()}
                   className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-medium text-sm rounded-xl transition shadow-sm"
                 >
-                  <RefreshCw className={`w-4 h-4 ${isLoadingPosts ? "animate-spin" : ""}`} />
+                  <RefreshCw className={`w-4 h-4 ${isLoadingItems ? "animate-spin" : ""}`} />
                   Refresh
                 </button>
 
@@ -363,64 +506,44 @@ export function AdminClient() {
                   className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm rounded-xl shadow-md shadow-blue-600/20 transition"
                 >
                   <Plus className="w-4 h-4" />
-                  Create New Article
+                  <span>
+                    Add {activeSection === "blog" ? "Article" : activeSection === "books" ? "Book / Publication" : "Facility Photo"}
+                  </span>
                 </button>
               </div>
             </div>
 
-            {/* Filters bar */}
-            <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm mb-6 flex flex-col md:flex-row items-center justify-between gap-4">
+            {/* Search Bar */}
+            <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm mb-6">
               <div className="relative w-full md:w-80">
                 <Search className="absolute left-3.5 top-3 w-4 h-4 text-slate-400" />
                 <input
                   type="text"
-                  placeholder="Search articles by title..."
+                  placeholder="Search by title..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600"
                 />
               </div>
-
-              <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0">
-                {["All", "Treatments", "Conditions", "General Urology"].map((cat) => (
-                  <button
-                    key={cat}
-                    onClick={() => setFilterCategory(cat)}
-                    className={`px-4 py-1.5 rounded-xl text-xs font-semibold transition ${
-                      filterCategory === cat
-                        ? "bg-blue-600 text-white"
-                        : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                    }`}
-                  >
-                    {cat}
-                  </button>
-                ))}
-              </div>
             </div>
 
-            {/* Posts Table */}
-            {isLoadingPosts ? (
+            {/* List Table */}
+            {isLoadingItems ? (
               <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center">
                 <RefreshCw className="w-8 h-8 text-blue-600 animate-spin mx-auto mb-3" />
-                <p className="text-sm text-slate-600 font-medium">
-                  Loading articles from repository...
-                </p>
+                <p className="text-sm text-slate-600 font-medium">Loading items...</p>
               </div>
-            ) : filteredPosts.length === 0 ? (
+            ) : filteredItems.length === 0 ? (
               <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center">
                 <FileText className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-                <h3 className="text-base font-bold text-slate-900">No articles found</h3>
-                <p className="text-sm text-slate-500 mt-1 mb-6">
-                  {searchQuery
-                    ? "Try adjusting your search filter."
-                    : "Create your first educational urology post."}
-                </p>
+                <h3 className="text-base font-bold text-slate-900">No items found</h3>
+                <p className="text-sm text-slate-500 mt-1 mb-6">Add your first item to this section.</p>
                 <button
                   onClick={handleCreateNew}
                   className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-xl"
                 >
                   <Plus className="w-4 h-4" />
-                  Create New Article
+                  Add New Item
                 </button>
               </div>
             ) : (
@@ -429,76 +552,54 @@ export function AdminClient() {
                   <table className="w-full text-left border-collapse">
                     <thead>
                       <tr className="bg-slate-50 border-b border-slate-200 text-xs font-semibold uppercase tracking-wider text-slate-500">
-                        <th className="py-4 px-6">Article Title</th>
-                        <th className="py-4 px-6">Category</th>
-                        <th className="py-4 px-6">Author</th>
-                        <th className="py-4 px-6">Publish Date</th>
-                        <th className="py-4 px-6">Status</th>
+                        <th className="py-4 px-6">Photo</th>
+                        <th className="py-4 px-6">Title</th>
+                        {activeSection === "books" && <th className="py-4 px-6">Description</th>}
+                        <th className="py-4 px-6">Date</th>
                         <th className="py-4 px-6 text-right">Actions</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 text-sm">
-                      {filteredPosts.map((post) => (
-                        <tr
-                          key={post.slug}
-                          className="hover:bg-slate-50/70 transition duration-150"
-                        >
+                      {filteredItems.map((item) => (
+                        <tr key={item.slug} className="hover:bg-slate-50/70 transition">
                           <td className="py-4 px-6">
-                            <div className="font-semibold text-slate-900">
-                              {post.title}
-                            </div>
-                            <div className="text-xs text-slate-400 mt-0.5 font-mono">
-                              /blog/{post.slug}
-                            </div>
-                          </td>
-                          <td className="py-4 px-6">
-                            <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100">
-                              {post.category}
-                            </span>
-                          </td>
-                          <td className="py-4 px-6 text-slate-600 font-medium">
-                            {post.author}
-                          </td>
-                          <td className="py-4 px-6 text-slate-500">
-                            {post.date}
-                          </td>
-                          <td className="py-4 px-6">
-                            <span
-                              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${
-                                post.draft
-                                  ? "bg-amber-50 text-amber-700 border border-amber-200"
-                                  : "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                              }`}
-                            >
-                              <span
-                                className={`w-1.5 h-1.5 rounded-full ${
-                                  post.draft ? "bg-amber-500" : "bg-emerald-500"
-                                }`}
+                            {item.image ? (
+                              <img
+                                src={item.image}
+                                alt={item.title}
+                                className="w-14 h-14 object-cover rounded-xl border border-slate-200"
                               />
-                              {post.draft ? "Draft" : "Published"}
-                            </span>
+                            ) : (
+                              <div className="w-14 h-14 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400">
+                                <ImageIcon className="w-5 h-5" />
+                              </div>
+                            )}
                           </td>
+                          <td className="py-4 px-6">
+                            <div className="font-semibold text-slate-900">{item.title}</div>
+                            <div className="text-xs text-slate-400 font-mono mt-0.5">
+                              /{activeSection}/{item.slug}
+                            </div>
+                          </td>
+                          {activeSection === "books" && (
+                            <td className="py-4 px-6 text-slate-600 max-w-xs truncate">
+                              {item.description}
+                            </td>
+                          )}
+                          <td className="py-4 px-6 text-slate-500">{item.date}</td>
                           <td className="py-4 px-6 text-right">
                             <div className="inline-flex items-center gap-2 justify-end">
-                              <Link
-                                href={`/blog/${post.slug}`}
-                                target="_blank"
-                                className="p-2 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition"
-                                title="View Article"
-                              >
-                                <ExternalLink className="w-4 h-4" />
-                              </Link>
                               <button
-                                onClick={() => handleEdit(post)}
+                                onClick={() => handleEdit(item)}
                                 className="p-2 text-slate-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition"
-                                title="Edit Article"
+                                title="Edit Item"
                               >
                                 <Edit3 className="w-4 h-4" />
                               </button>
                               <button
-                                onClick={() => handleDelete(post.slug)}
+                                onClick={() => handleDelete(item.slug)}
                                 className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition"
-                                title="Delete Article"
+                                title="Delete Item"
                               >
                                 <Trash2 className="w-4 h-4" />
                               </button>
@@ -513,134 +614,109 @@ export function AdminClient() {
             )}
           </div>
         ) : (
-          /* Article Editor */
-          <div className="max-w-4xl mx-auto">
+          /* EDITOR FOR BLOGS, BOOKS, OR GALLERY */
+          <div className="max-w-3xl mx-auto">
             <div className="flex items-center justify-between mb-6">
               <button
                 onClick={() => setActiveTab("list")}
                 className="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 hover:text-slate-900 transition"
               >
                 <ArrowLeft className="w-4 h-4" />
-                Back to Articles
+                Back to List
               </button>
-
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setEditorPreview(!editorPreview)}
-                  className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold border transition ${
-                    editorPreview
-                      ? "bg-slate-900 text-white border-slate-900"
-                      : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
-                  }`}
-                >
-                  <Eye className="w-3.5 h-3.5" />
-                  {editorPreview ? "Editing Mode" : "Preview Markdown"}
-                </button>
-              </div>
             </div>
 
-            <form onSubmit={handleSavePost} className="space-y-6">
+            <form onSubmit={handleSaveItem} className="space-y-6">
               <div className="bg-white p-6 md:p-8 rounded-3xl border border-slate-200 shadow-sm space-y-6">
-                {/* Title */}
                 <div>
                   <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">
-                    Article Title *
+                    Title *
                   </label>
                   <input
                     type="text"
                     required
-                    value={currentPost.title}
-                    onChange={(e) =>
-                      setCurrentPost({ ...currentPost, title: e.target.value })
-                    }
-                    placeholder="e.g. Laser Surgery vs Traditional Surgery: Recovery Timeline"
+                    value={currentItem.title}
+                    onChange={(e) => setCurrentItem({ ...currentItem, title: e.target.value })}
                     className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-semibold text-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
                   />
                 </div>
 
-                {/* Slug, Category, Date */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">
-                      URL Slug
-                    </label>
-                    <input
-                      type="text"
-                      value={currentPost.slug}
-                      onChange={(e) =>
-                        setCurrentPost({ ...currentPost, slug: e.target.value })
-                      }
-                      placeholder="auto-generated from title"
-                      className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-mono text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-600"
-                    />
-                  </div>
+                {/* PHOTO UPLOAD / URL FIELD FOR BOOKS, GALLERY, & BLOG */}
+                <div className="p-5 bg-slate-50 rounded-2xl border border-slate-200">
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-3">
+                    Photo / Cover Image
+                  </label>
 
-                  <div>
-                    <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">
-                      Category
-                    </label>
-                    <select
-                      value={currentPost.category}
-                      onChange={(e) =>
-                        setCurrentPost({ ...currentPost, category: e.target.value })
-                      }
-                      className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600"
-                    >
-                      <option value="Treatments">Treatments</option>
-                      <option value="Conditions">Conditions</option>
-                      <option value="General Urology">General Urology</option>
-                      <option value="Preventive Care">Preventive Care</option>
-                    </select>
-                  </div>
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                    {currentItem.image ? (
+                      <img
+                        src={currentItem.image}
+                        alt="Preview"
+                        className="w-20 h-20 object-cover rounded-xl border border-slate-300"
+                      />
+                    ) : (
+                      <div className="w-20 h-20 rounded-xl bg-slate-200 flex items-center justify-center text-slate-400">
+                        <ImageIcon className="w-6 h-6" />
+                      </div>
+                    )}
 
-                  <div>
-                    <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">
-                      Publish Date
-                    </label>
-                    <input
-                      type="date"
-                      value={currentPost.date}
-                      onChange={(e) =>
-                        setCurrentPost({ ...currentPost, date: e.target.value })
-                      }
-                      className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600"
-                    />
-                  </div>
-                </div>
-
-                {/* Editor Content */}
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500">
-                      Markdown Body Content
-                    </label>
-                    <span className="text-xs text-slate-400">
-                      Supports standard Markdown (*bold*, # headers, - lists)
-                    </span>
-                  </div>
-
-                  {editorPreview ? (
-                    <div className="w-full min-h-[360px] p-6 bg-slate-50 border border-slate-200 rounded-2xl prose prose-slate max-w-none">
-                      <h2 className="text-2xl font-bold mb-4">{currentPost.title}</h2>
-                      <pre className="whitespace-pre-wrap font-sans text-sm text-slate-800">
-                        {currentPost.body}
-                      </pre>
+                    <div className="flex-1 space-y-2 w-full">
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="text"
+                          value={currentItem.image || ""}
+                          onChange={(e) => setCurrentItem({ ...currentItem, image: e.target.value })}
+                          placeholder="/uploads/my-photo.jpg"
+                          className="flex-1 px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-mono"
+                        />
+                        <label className="cursor-pointer px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-xl inline-flex items-center gap-1.5 transition shrink-0">
+                          <Upload className="w-3.5 h-3.5" />
+                          <span>{isUploading ? "Uploading..." : "Upload Photo"}</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => handleFileUpload(e, false)}
+                            disabled={isUploading}
+                            className="hidden"
+                          />
+                        </label>
+                      </div>
+                      <p className="text-xs text-slate-500">
+                        Upload any JPG or PNG photo directly from your device or paste an image URL.
+                      </p>
                     </div>
-                  ) : (
-                    <textarea
-                      rows={14}
-                      value={currentPost.body}
-                      onChange={(e) =>
-                        setCurrentPost({ ...currentPost, body: e.target.value })
-                      }
-                      placeholder="Write comprehensive article content..."
-                      className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm text-slate-900 font-mono leading-relaxed focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white"
-                    />
-                  )}
+                  </div>
                 </div>
 
-                {/* Save Feedback */}
+                {activeSection === "books" && (
+                  <div>
+                    <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">
+                      Short Description
+                    </label>
+                    <textarea
+                      rows={3}
+                      value={currentItem.description || ""}
+                      onChange={(e) => setCurrentItem({ ...currentItem, description: e.target.value })}
+                      placeholder="Summary of publication or book..."
+                      className="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-sm"
+                    />
+                  </div>
+                )}
+
+                {activeSection === "blog" && (
+                  <div>
+                    <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">
+                      Article Markdown Body
+                    </label>
+                    <textarea
+                      rows={12}
+                      value={currentItem.body}
+                      onChange={(e) => setCurrentItem({ ...currentItem, body: e.target.value })}
+                      className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-mono"
+                    />
+                  </div>
+                )}
+
                 {saveMessage && (
                   <div className="flex items-center gap-2 p-4 bg-emerald-50 border border-emerald-200 rounded-2xl text-emerald-800 text-sm font-medium">
                     <CheckCircle2 className="w-5 h-5 shrink-0 text-emerald-600" />
@@ -648,7 +724,6 @@ export function AdminClient() {
                   </div>
                 )}
 
-                {/* Actions */}
                 <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
                   <button
                     type="button"
@@ -661,19 +736,10 @@ export function AdminClient() {
                   <button
                     type="submit"
                     disabled={isSaving}
-                    className="inline-flex items-center gap-2 px-8 py-3 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold text-sm rounded-xl shadow-lg shadow-blue-600/30 transition disabled:opacity-50"
+                    className="inline-flex items-center gap-2 px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm rounded-xl shadow-lg transition"
                   >
-                    {isSaving ? (
-                      <>
-                        <RefreshCw className="w-4 h-4 animate-spin" />
-                        <span>Saving Article...</span>
-                      </>
-                    ) : (
-                      <>
-                        <Save className="w-4 h-4" />
-                        <span>Save & Publish Article</span>
-                      </>
-                    )}
+                    <Save className="w-4 h-4" />
+                    <span>{isSaving ? "Saving..." : "Save Item"}</span>
                   </button>
                 </div>
               </div>
