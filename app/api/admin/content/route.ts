@@ -174,28 +174,40 @@ export async function DELETE(req: Request) {
     const filePathMd = path.join(folderPath, `${slug}.md`);
     const filePathMdx = path.join(folderPath, `${slug}.mdx`);
 
-    let ext = "md";
+    const ext = type === "books" || type === "gallery" ? "mdx" : "md";
+
     let localSuccess = false;
-    if (fs.existsSync(filePathMd)) {
-      fs.unlinkSync(filePathMd);
-      ext = "md";
-      localSuccess = true;
-    } else if (fs.existsSync(filePathMdx)) {
-      fs.unlinkSync(filePathMdx);
-      ext = "mdx";
-      localSuccess = true;
+    try {
+      if (fs.existsSync(filePathMd)) {
+        fs.unlinkSync(filePathMd);
+        localSuccess = true;
+      } else if (fs.existsSync(filePathMdx)) {
+        fs.unlinkSync(filePathMdx);
+        localSuccess = true;
+      }
+    } catch {
+      // Filesystem is read-only on Cloudflare Pages / Serverless
+      localSuccess = false;
     }
 
     if (process.env.GITHUB_TOKEN) {
-      const relativePath = `content/${type}/${slug}.${ext}`;
-      await deleteFromGitHub(relativePath, `Delete ${type}: ${slug} via Admin Portal`);
+      // First try deleting with expected extension, then fallback to alternate extension
+      const relPath = `content/${type}/${slug}.${ext}`;
+      const altPath = `content/${type}/${slug}.${ext === "md" ? "mdx" : "md"}`;
+      const ghRes = await deleteFromGitHub(relPath, `Delete ${type}: ${slug} via Admin Portal`);
+      if (!ghRes.success) {
+        const ghAltRes = await deleteFromGitHub(altPath, `Delete ${type}: ${slug} via Admin Portal`);
+        if (!ghAltRes.success && !localSuccess) {
+          return NextResponse.json({ success: false, error: ghRes.error || "Failed to delete item from GitHub" }, { status: 500 });
+        }
+      }
     } else if (!localSuccess) {
       return NextResponse.json(
         {
           success: false,
-          error: "Item not found or read-only on Vercel. Add GITHUB_TOKEN in Vercel to delete from GitHub.",
+          error: "Filesystem read-only. Please add GITHUB_TOKEN in Cloudflare Pages Environment Variables to delete items.",
         },
-        { status: 404 }
+        { status: 500 }
       );
     }
 
