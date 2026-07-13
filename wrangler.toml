@@ -1,8 +1,0 @@
-name = "website"
-main = ".open-next/server-functions/default/handler.mjs"
-compatibility_date = "2026-07-13"
-compatibility_flags = ["nodejs_compat"]
-
-[assets]
-directory = ".open-next/assets"
-binding = "ASSETS"
