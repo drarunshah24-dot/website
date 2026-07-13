@@ -13,8 +13,8 @@ export async function saveToGitHub(
     return { success: false, error: "GITHUB_TOKEN environment variable not set" };
   }
 
-  const owner = process.env.GITHUB_OWNER || "thistushar24";
-  const repo = process.env.GITHUB_REPO || "dr_Arun_kumar_shah";
+  const owner = process.env.GITHUB_OWNER || "drarunshah24-dot";
+  const repo = process.env.GITHUB_REPO || "website";
   const branch = process.env.GITHUB_BRANCH || "main";
 
   // Clean relative path leading slash
@@ -83,8 +83,8 @@ export async function deleteFromGitHub(
     return { success: false, error: "GITHUB_TOKEN environment variable not set" };
   }
 
-  const owner = process.env.GITHUB_OWNER || "thistushar24";
-  const repo = process.env.GITHUB_REPO || "dr_Arun_kumar_shah";
+  const owner = process.env.GITHUB_OWNER || "drarunshah24-dot";
+  const repo = process.env.GITHUB_REPO || "website";
   const branch = process.env.GITHUB_BRANCH || "main";
 
   const cleanPath = relativePath.replace(/^\/+/, "");
