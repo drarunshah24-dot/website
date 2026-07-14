@@ -154,6 +154,9 @@ export async function POST(req: Request) {
         return NextResponse.json({
           success: true,
           url: publicUrl,
+          rawUrl: putData.content?.download_url
+            ? `${putData.content.download_url}?_ts=${Date.now()}`
+            : publicUrl,
           fileName: filename,
           github: putData.content?.html_url,
         });

@@ -79,6 +79,7 @@ export function AdminClient() {
   // Upload state
   const [isUploading, setIsUploading] = useState(false);
   const [heroPhotoTimestamp, setHeroPhotoTimestamp] = useState(1);
+  const [heroPhotoPreviewUrl, setHeroPhotoPreviewUrl] = useState("");
   const [heroUploadMessage, setHeroUploadMessage] = useState("");
 
   const loadItems = async (section = activeSection) => {
@@ -246,7 +247,7 @@ export function AdminClient() {
       });
 
       const rawText = await res.text();
-      let data: { success: boolean; error?: string; url?: string; [key: string]: unknown } = { success: false, error: rawText || "Server error" };
+      let data: { success: boolean; error?: string; url?: string; rawUrl?: string; [key: string]: unknown } = { success: false, error: rawText || "Server error" };
       try {
         data = JSON.parse(rawText);
       } catch {
@@ -255,11 +256,16 @@ export function AdminClient() {
       if (data.success) {
         if (isHero) {
           setHeroPhotoTimestamp(Date.now());
+          if (typeof data.rawUrl === "string" && data.rawUrl) {
+            setHeroPhotoPreviewUrl(data.rawUrl);
+          } else if (typeof data.url === "string" && data.url) {
+            setHeroPhotoPreviewUrl(`${data.url}?_ts=${Date.now()}`);
+          }
           setHeroUploadMessage(
-            "1st Page Doctor Photo updated successfully! It is now live across the homepage.",
+            "1st Page Doctor Photo updated successfully! It is visible here right now, and Cloudflare is rebuilding the site so it appears live on the homepage (~1-2 mins)."
           );
         } else {
-          setCurrentItem((prev) => ({ ...prev, image: data.url }));
+          setCurrentItem((prev) => ({ ...prev, image: typeof data.rawUrl === "string" && data.rawUrl ? data.rawUrl : (typeof data.url === "string" ? data.url : "") }));
         }
       } else {
         alert("Upload failed: " + (data.error || "Unknown error"));
@@ -561,7 +567,7 @@ export function AdminClient() {
                   </p>
                   <div className="relative aspect-[4/5] w-full max-w-[240px] mx-auto rounded-2xl overflow-hidden shadow-md border border-slate-200 bg-white">
                     <img
-                      src={`/dr-arun-shah-urologist-janakpur.jpg?t=${heroPhotoTimestamp}`}
+                      src={heroPhotoPreviewUrl || `/dr-arun-shah-urologist-janakpur.jpg?t=${heroPhotoTimestamp}`}
                       alt="Dr. Arun Shah"
                       className="w-full h-full object-cover"
                     />
