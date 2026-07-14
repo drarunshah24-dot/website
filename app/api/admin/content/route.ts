@@ -3,14 +3,24 @@ import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
 import { saveToGitHub, deleteFromGitHub } from "@/lib/github";
+import { checkAuth } from "@/lib/auth";
+import { logger } from "@/lib/logger";
 
 const contentDir = path.join(process.cwd(), "content");
 const settingsFile = path.join(contentDir, "settings.json");
 
 export async function GET(req: Request) {
+  const reqId = req.headers.get("x-request-id") || crypto.randomUUID();
+  const reqLogger = logger.child({ requestId: reqId });
+
   try {
     const { searchParams } = new URL(req.url);
     const type = searchParams.get("type") || "blog"; // 'blog' | 'books' | 'gallery' | 'settings'
+
+    reqLogger.info(
+      { event: "content_fetch_started", type },
+      `Fetching content of type: ${type}`,
+    );
 
     if (type === "settings") {
       if (!fs.existsSync(settingsFile)) {
@@ -19,8 +29,12 @@ export async function GET(req: Request) {
           doctorName: "Dr. Arun Shah",
           subtitle: "Senior Urologist & Gold Medalist",
         };
-        if (!fs.existsSync(contentDir)) fs.mkdirSync(contentDir, { recursive: true });
-        fs.writeFileSync(settingsFile, JSON.stringify(defaultSettings, null, 2));
+        if (!fs.existsSync(contentDir))
+          fs.mkdirSync(contentDir, { recursive: true });
+        fs.writeFileSync(
+          settingsFile,
+          JSON.stringify(defaultSettings, null, 2),
+        );
         return NextResponse.json({ success: true, settings: defaultSettings });
       }
       const settings = JSON.parse(fs.readFileSync(settingsFile, "utf8"));
@@ -33,7 +47,9 @@ export async function GET(req: Request) {
       return NextResponse.json({ success: true, items: [] });
     }
 
-    const files = fs.readdirSync(folderPath).filter((f) => f.endsWith(".md") || f.endsWith(".mdx"));
+    const files = fs
+      .readdirSync(folderPath)
+      .filter((f) => f.endsWith(".md") || f.endsWith(".mdx"));
     const items = files.map((file) => {
       const filePath = path.join(folderPath, file);
       const raw = fs.readFileSync(filePath, "utf8");
@@ -43,7 +59,8 @@ export async function GET(req: Request) {
         title: data.title || "Untitled",
         date: data.date || "2026-07-08",
         author: data.author || "Dr. Arun Shah",
-        category: data.category || (type === "books" ? "Publication" : "Facility"),
+        category:
+          data.category || (type === "books" ? "Publication" : "Facility"),
         draft: Boolean(data.draft),
         image: data.image || data.cover || "",
         description: data.description || "",
@@ -51,25 +68,59 @@ export async function GET(req: Request) {
       };
     });
 
-    items.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    items.sort(
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+    );
 
     return NextResponse.json({ success: true, items });
-  } catch (error) {
-    console.error(`Error fetching ${req.url}:`, error);
-    return NextResponse.json({ success: false, error: "Failed to fetch content" }, { status: 500 });
+  } catch (error: unknown) {
+    logger.error(
+      {
+        event: "content_fetch_failed",
+        url: req.url,
+        error: error instanceof Error ? error.message : String(error),
+      },
+      "Failed to fetch content",
+    );
+    return NextResponse.json(
+      { success: false, error: "Failed to fetch content" },
+      { status: 500 },
+    );
   }
 }
 
 export async function POST(req: Request) {
+  const reqId = req.headers.get("x-request-id") || crypto.randomUUID();
+  const reqLogger = logger.child({ requestId: reqId });
+
+  const authError = checkAuth(req);
+  if (authError) return authError;
+
   try {
     const body = await req.json();
-    const { type, slug, title, date, author, category, draft, image, description, content } = body;
+    const {
+      type,
+      slug,
+      title,
+      date,
+      author,
+      category,
+      draft,
+      image,
+      description,
+      content,
+    } = body;
+    reqLogger.info(
+      { event: "content_save_started", type, slug },
+      `Saving content: ${slug}`,
+    );
 
     if (type === "settings") {
       const settingsContent = JSON.stringify(body.settings, null, 2);
       let localSuccess = false;
       try {
-        if (!fs.existsSync(contentDir)) fs.mkdirSync(contentDir, { recursive: true });
+        if (!fs.existsSync(contentDir))
+          fs.mkdirSync(contentDir, { recursive: true });
         fs.writeFileSync(settingsFile, settingsContent, "utf8");
         localSuccess = true;
       } catch {
@@ -77,17 +128,25 @@ export async function POST(req: Request) {
       }
 
       if (process.env.GITHUB_TOKEN) {
-        const ghRes = await saveToGitHub("content/settings.json", settingsContent, "Update settings.json via Admin Portal");
+        const ghRes = await saveToGitHub(
+          "content/settings.json",
+          settingsContent,
+          "Update settings.json via Admin Portal",
+        );
         if (!ghRes.success && !localSuccess) {
-          return NextResponse.json({ success: false, error: ghRes.error }, { status: 500 });
+          return NextResponse.json(
+            { success: false, error: ghRes.error },
+            { status: 500 },
+          );
         }
       } else if (!localSuccess) {
         return NextResponse.json(
           {
             success: false,
-            error: "Vercel Serverless is read-only. Please add GITHUB_TOKEN to your Vercel Environment Variables to save permanently.",
+            error:
+              "Filesystem is read-only. Please add GITHUB_TOKEN to your Environment Variables to save permanently.",
           },
-          { status: 500 }
+          { status: 500 },
         );
       }
 
@@ -95,11 +154,17 @@ export async function POST(req: Request) {
     }
 
     if (!slug || !title) {
-      return NextResponse.json({ success: false, error: "Slug and title are required" }, { status: 400 });
+      return NextResponse.json(
+        { success: false, error: "Slug and title are required" },
+        { status: 400 },
+      );
     }
 
     const folderPath = path.join(contentDir, type || "blog");
-    const cleanSlug = slug.toLowerCase().replace(/[^a-z0-9-]+/g, "-").replace(/^-+|-+$/g, "");
+    const cleanSlug = slug
+      .toLowerCase()
+      .replace(/[^a-z0-9-]+/g, "-")
+      .replace(/^-+|-+$/g, "");
     const ext = type === "books" || type === "gallery" ? "mdx" : "md";
     const filePath = path.join(folderPath, `${cleanSlug}.${ext}`);
     const relativeGitHubPath = `content/${type || "blog"}/${cleanSlug}.${ext}`;
@@ -138,36 +203,62 @@ export async function POST(req: Request) {
       const ghRes = await saveToGitHub(
         relativeGitHubPath,
         fileContent,
-        `Update ${type || "blog"}: ${title} via Admin Portal`
+        `Update ${type || "blog"}: ${title} via Admin Portal`,
       );
       if (!ghRes.success && !localSuccess) {
-        return NextResponse.json({ success: false, error: ghRes.error }, { status: 500 });
+        return NextResponse.json(
+          { success: false, error: ghRes.error },
+          { status: 500 },
+        );
       }
     } else if (!localSuccess) {
       return NextResponse.json(
         {
           success: false,
-          error: "Vercel Serverless is read-only. Please add GITHUB_TOKEN to your Vercel Environment Variables to commit directly to GitHub.",
+          error:
+            "Filesystem is read-only. Please add GITHUB_TOKEN to your Environment Variables to commit directly to GitHub.",
         },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
     return NextResponse.json({ success: true, slug: cleanSlug });
-  } catch (error) {
-    console.error("Error saving item:", error);
-    return NextResponse.json({ success: false, error: "Failed to save item" }, { status: 500 });
+  } catch (error: unknown) {
+    logger.error(
+      {
+        event: "content_save_failed",
+        error: error instanceof Error ? error.message : String(error),
+      },
+      "Failed to save item",
+    );
+    return NextResponse.json(
+      { success: false, error: "Failed to save item" },
+      { status: 500 },
+    );
   }
 }
 
 export async function DELETE(req: Request) {
+  const reqId = req.headers.get("x-request-id") || crypto.randomUUID();
+  const reqLogger = logger.child({ requestId: reqId });
+
+  const authError = checkAuth(req);
+  if (authError) return authError;
+
   try {
     const { searchParams } = new URL(req.url);
     const type = searchParams.get("type") || "blog";
     const slug = searchParams.get("slug");
+    reqLogger.info(
+      { event: "content_delete_started", type, slug },
+      `Deleting content: ${slug}`,
+    );
 
     if (!slug) {
-      return NextResponse.json({ success: false, error: "Missing slug parameter" }, { status: 400 });
+      return NextResponse.json(
+        { success: false, error: "Missing slug parameter" },
+        { status: 400 },
+      );
     }
 
     const folderPath = path.join(contentDir, type);
@@ -194,26 +285,48 @@ export async function DELETE(req: Request) {
       // First try deleting with expected extension, then fallback to alternate extension
       const relPath = `content/${type}/${slug}.${ext}`;
       const altPath = `content/${type}/${slug}.${ext === "md" ? "mdx" : "md"}`;
-      const ghRes = await deleteFromGitHub(relPath, `Delete ${type}: ${slug} via Admin Portal`);
+      const ghRes = await deleteFromGitHub(
+        relPath,
+        `Delete ${type}: ${slug} via Admin Portal`,
+      );
       if (!ghRes.success) {
-        const ghAltRes = await deleteFromGitHub(altPath, `Delete ${type}: ${slug} via Admin Portal`);
+        const ghAltRes = await deleteFromGitHub(
+          altPath,
+          `Delete ${type}: ${slug} via Admin Portal`,
+        );
         if (!ghAltRes.success && !localSuccess) {
-          return NextResponse.json({ success: false, error: ghRes.error || "Failed to delete item from GitHub" }, { status: 500 });
+          return NextResponse.json(
+            {
+              success: false,
+              error: ghRes.error || "Failed to delete item from GitHub",
+            },
+            { status: 500 },
+          );
         }
       }
     } else if (!localSuccess) {
       return NextResponse.json(
         {
           success: false,
-          error: "Filesystem read-only. Please add GITHUB_TOKEN in Cloudflare Pages Environment Variables to delete items.",
+          error:
+            "Filesystem read-only. Please add GITHUB_TOKEN in Cloudflare Pages Environment Variables to delete items.",
         },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
     return NextResponse.json({ success: true });
-  } catch (error) {
-    console.error("Error deleting item:", error);
-    return NextResponse.json({ success: false, error: "Failed to delete item" }, { status: 500 });
+  } catch (error: unknown) {
+    logger.error(
+      {
+        event: "content_delete_failed",
+        error: error instanceof Error ? error.message : String(error),
+      },
+      "Failed to delete item",
+    );
+    return NextResponse.json(
+      { success: false, error: "Failed to delete item" },
+      { status: 500 },
+    );
   }
 }

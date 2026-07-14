@@ -1,36 +1,64 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Dr. Arun Shah Website
 
-## Getting Started
+A modern medical portfolio and blog website for Dr. Arun Shah, built with Next.js, Tailwind CSS, and optimized for Cloudflare Pages using OpenNext.
 
-First, run the development server:
+## Quick Start
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+1. Clone the repository
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Set up your environment variables by creating a `.env` file:
+   ```env
+   # Required for local Admin Portal testing
+   ADMIN_PASSWORD=your_secure_password
+   # Required for GitHub commits through the Admin Portal
+   GITHUB_TOKEN=your_github_personal_access_token
+   GITHUB_OWNER=drarunshah24-dot
+   GITHUB_REPO=website
+   ```
+4. Run the development server:
+   ```bash
+   npm run dev
+   ```
+5. Open [http://localhost:3000](http://localhost:3000) to view the site.
+6. Open [http://localhost:3000/admin](http://localhost:3000/admin) to view the Admin Portal.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Commands
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Start the Next.js development server |
+| `npm run build` | Production build (uses OpenNext for Cloudflare) |
+| `npm run lint` | Run ESLint |
+| `npx tsc --noEmit` | Run TypeScript type checking |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Architecture
 
-## Learn More
+This project is fully statically generated (SSG) with Incremental Static Regeneration (ISR) to provide instantaneous page loads. It leverages the following technologies:
+- **Next.js 14+ (App Router)**: Framework for React.
+- **OpenNext**: Build adapter to seamlessly run Next.js on Cloudflare Pages.
+- **MDX & Gray Matter**: Used for rendering markdown-based content for blogs, conditions, and treatments.
+- **Tailwind CSS**: Utility-first CSS framework for styling.
 
-To learn more about Next.js, take a look at the following resources:
+### Admin Portal & GitHub Integration
+The project features a custom-built Admin Portal at `/admin`. Instead of using a database, the Admin Portal interacts directly with the local file system (in development) and commits changes back to the GitHub repository using the GitHub API (in production).
+This ensures that the repository remains the single source of truth for all content, triggering an automatic rebuild on Cloudflare Pages whenever content is updated.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+See `docs/decisions/` for more details on architectural decisions.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Deployment
 
-## Deploy on Vercel
+The application is deployed on **Cloudflare Pages**.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- Pushes to the `main` branch automatically trigger a deployment.
+- CI quality gates (Lint, TypeScript, Unit Tests) run via GitHub Actions on Pull Requests.
+- Ensure that `ADMIN_PASSWORD` and `GITHUB_TOKEN` are set in the Cloudflare Pages environment variables.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Rollback Strategy
+If a deployment fails or introduces a regression:
+1. Log into the Cloudflare Dashboard.
+2. Navigate to Workers & Pages -> `website`.
+3. Go to the **Deployments** tab.
+4. Locate the previous stable deployment, click the three dots, and select **Rollback to this deployment**.

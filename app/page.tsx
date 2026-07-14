@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { generateMetadata } from "@/lib/seo";
@@ -15,8 +16,7 @@ import { ClinicMarquee } from "@/components/ui/ClinicMarquee";
 const WHATSAPP_URL = "https://wa.me/9779744427743?text=I%20would%20like%20to%20book%20an%20appointment.";
 const PHONE_NUMBER = "+9779744427743";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
+export const revalidate = 3600;
 
 export const metadata = generateMetadata({
   title: "National Urology Center - Dr. Arun Shah | Janakpur",
@@ -135,7 +135,14 @@ export default function Home() {
             </div>
 
             {/* Right Column: Doctor Image */}
-            <img src="/dr-arun-shah-urologist-janakpur.jpg" alt="Dr. Arun Shah - Best Urologist in Janakpur" className="w-full max-w-md mx-auto aspect-[4/5] object-cover rounded-2xl shadow-xl relative z-10" />
+            <Image 
+              src="/dr-arun-shah-urologist-janakpur.jpg" 
+              alt="Dr. Arun Shah - Best Urologist in Janakpur" 
+              width={500} 
+              height={625}
+              priority
+              className="w-full max-w-md mx-auto aspect-[4/5] object-cover rounded-2xl shadow-xl relative z-10" 
+            />
           </div>
         </div>
       </section>
@@ -231,10 +238,11 @@ export default function Home() {
                 <Link key={book.slug} href={`/books/${book.slug}`} className="block h-full">
                   <div className="bg-white rounded-2xl shadow-md border border-slate-100 overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl group h-full flex flex-col cursor-pointer">
                     <div className="aspect-[3/4] bg-gradient-to-br from-primary/5 to-primary/10 flex items-center justify-center p-8 overflow-hidden">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
+                      <Image
                         src={book.frontmatter.cover || "https://placehold.co/400x600/e2e8f0/475569?text=Book+Cover"}
                         alt={book.frontmatter.title || "Book Cover"}
+                        width={400}
+                        height={600}
                         className="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-500"
                       />
                     </div>

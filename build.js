@@ -8,10 +8,16 @@ if (process.env.SKIP_OPEN_NEXT_RECURSION) {
     process.exit(0);
 }
 
-// Check if we're building on Vercel
-if (process.env.VERCEL) {
-    console.log("Vercel environment detected. Running Next.js build...");
-    execSync('npx next build', { stdio: 'inherit' });
+const isCloudflare = process.env.CF_PAGES === "1";
+
+if (!isCloudflare) {
+    console.log("Local build detected. Running Next.js build...");
+    try {
+        execSync("npx next build", { stdio: "inherit" });
+    } catch (error) {
+        console.error("Local Next.js build failed");
+        process.exit(1);
+    }
 } else {
     // We assume any other environment (like Cloudflare CI) wants the OpenNext build.
     // We set the recursion-breaking flag so the internal build triggers next build instead of looping.

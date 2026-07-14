@@ -1,16 +1,19 @@
 /**
  * Helper to commit files directly to GitHub via GitHub REST API.
- * This enables permanent file uploads and content changes on Vercel serverless deployments.
+ * This enables permanent file uploads and content changes on serverless deployments.
  */
 
 export async function saveToGitHub(
   relativePath: string, // e.g. "content/books/my-book.mdx" or "public/uploads/photo.jpg"
   content: string | Buffer,
-  commitMessage: string
+  commitMessage: string,
 ): Promise<{ success: boolean; error?: string }> {
   const token = process.env.GITHUB_TOKEN;
   if (!token) {
-    return { success: false, error: "GITHUB_TOKEN environment variable not set" };
+    return {
+      success: false,
+      error: "GITHUB_TOKEN environment variable not set",
+    };
   }
 
   const owner = process.env.GITHUB_OWNER || "drarunshah24-dot";
@@ -61,7 +64,10 @@ export async function saveToGitHub(
     if (!putRes.ok) {
       const errJson = await putRes.json();
       console.error("GitHub API error:", errJson);
-      return { success: false, error: errJson.message || "GitHub API PUT failed" };
+      return {
+        success: false,
+        error: errJson.message || "GitHub API PUT failed",
+      };
     }
 
     return { success: true };
@@ -69,18 +75,24 @@ export async function saveToGitHub(
     console.error("Error saving to GitHub API:", err);
     return {
       success: false,
-      error: err instanceof Error ? err.message : "Unknown error committing to GitHub",
+      error:
+        err instanceof Error
+          ? err.message
+          : "Unknown error committing to GitHub",
     };
   }
 }
 
 export async function deleteFromGitHub(
   relativePath: string,
-  commitMessage: string
+  commitMessage: string,
 ): Promise<{ success: boolean; error?: string }> {
   const token = process.env.GITHUB_TOKEN;
   if (!token) {
-    return { success: false, error: "GITHUB_TOKEN environment variable not set" };
+    return {
+      success: false,
+      error: "GITHUB_TOKEN environment variable not set",
+    };
   }
 
   const owner = process.env.GITHUB_OWNER || "drarunshah24-dot";
@@ -121,7 +133,10 @@ export async function deleteFromGitHub(
 
     if (!delRes.ok) {
       const errJson = await delRes.json();
-      return { success: false, error: errJson.message || "GitHub API DELETE failed" };
+      return {
+        success: false,
+        error: errJson.message || "GitHub API DELETE failed",
+      };
     }
 
     return { success: true };
@@ -129,7 +144,10 @@ export async function deleteFromGitHub(
     console.error("Error deleting from GitHub API:", err);
     return {
       success: false,
-      error: err instanceof Error ? err.message : "Unknown error deleting from GitHub",
+      error:
+        err instanceof Error
+          ? err.message
+          : "Unknown error deleting from GitHub",
     };
   }
 }
