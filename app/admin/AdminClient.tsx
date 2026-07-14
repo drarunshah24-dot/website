@@ -211,6 +211,7 @@ export function AdminClient() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${password}`,
         },
         body: JSON.stringify({
           filename,
