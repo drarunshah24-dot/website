@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars, @next/next/no-img-element, react-hooks/exhaustive-deps, @typescript-eslint/no-require-imports */
 const { execSync } = require('child_process');
 
 // When OpenNext triggers the build script internally, we must break the recursion

@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "node build.js",
+    "build:cf": "opennextjs-cloudflare build",
     "start": "next start",
     "lint": "eslint",
     "prepare": "husky"
@@ -43,7 +44,8 @@
     "lint-staged": "^17.0.8",
     "prettier": "^3.9.5",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "wrangler": "^4.110.0"
   },
   "overrides": {
     "postcss": "^8.5.10"

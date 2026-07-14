@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars, @next/next/no-img-element */
 import { getMdxBySlug, getAllMdx } from "@/lib/mdx";
 import { generateMetadata as generateSeoMetadata } from "@/lib/seo";
 import { buildArticleSchema } from "@/lib/schema";
@@ -108,9 +109,12 @@ export default async function BlogPostPage({ params }: Props) {
           {/* Main Article Body */}
           <div className="lg:col-span-8">
             <div className="aspect-[16/9] mb-10 rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 shadow-sm">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
+              {}
               <img
-                src={post.frontmatter.image || `https://placehold.co/800x450/e2e8f0/475569?text=${encodeURIComponent(post.frontmatter.category || "Medical+Article")}`}
+                src={
+                  post.frontmatter.image ||
+                  `https://placehold.co/800x450/e2e8f0/475569?text=${encodeURIComponent(post.frontmatter.category || "Medical+Article")}`
+                }
                 alt={post.frontmatter.title}
                 className="w-full h-full object-cover"
               />
@@ -123,7 +127,7 @@ export default async function BlogPostPage({ params }: Props) {
             {/* Author Bio Box */}
             <div className="mt-16 p-8 bg-slate-50 rounded-2xl border border-slate-200 flex flex-col md:flex-row items-center md:items-start gap-6">
               <div className="w-20 h-20 rounded-full overflow-hidden bg-slate-200 shrink-0 border-2 border-primary/20">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
+                {}
                 <img
                   src="/dr-arun-shah-urologist-janakpur.jpg"
                   alt="Dr. Arun Shah"
@@ -138,9 +142,18 @@ export default async function BlogPostPage({ params }: Props) {
                   Senior Consultant Urologist (M.Ch Gold Medalist)
                 </p>
                 <p className="text-slate-600 text-sm leading-relaxed mb-4">
-                  Dr. Arun Shah is a dedicated urologist practicing at National Urology Center in Janakpur, Nepal. With extensive training and a gold medal in M.Ch Urology, he specializes in advanced minimally invasive laser surgeries for kidney stones and prostate care.
+                  Dr. Arun Shah is a dedicated urologist practicing at National
+                  Urology Center in Janakpur, Nepal. With extensive training and
+                  a gold medal in M.Ch Urology, he specializes in advanced
+                  minimally invasive laser surgeries for kidney stones and
+                  prostate care.
                 </p>
-                <Button variant="outline" size="sm" asChild className="rounded-full">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  asChild
+                  className="rounded-full"
+                >
                   <Link href="/about">View Full Profile</Link>
                 </Button>
               </div>
@@ -148,7 +161,12 @@ export default async function BlogPostPage({ params }: Props) {
 
             {/* Medical Disclaimer */}
             <div className="mt-8 p-6 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-900 leading-relaxed">
-              <strong>Medical Disclaimer:</strong> The information provided in this article is intended solely for educational and informational purposes. It does not constitute formal medical advice, professional diagnosis, or treatment recommendations. Always seek the advice of your physician or qualified health provider with any questions you may have regarding a medical condition.
+              <strong>Medical Disclaimer:</strong> The information provided in
+              this article is intended solely for educational and informational
+              purposes. It does not constitute formal medical advice,
+              professional diagnosis, or treatment recommendations. Always seek
+              the advice of your physician or qualified health provider with any
+              questions you may have regarding a medical condition.
             </div>
           </div>
 
@@ -160,7 +178,8 @@ export default async function BlogPostPage({ params }: Props) {
                   Need Expert Consultation?
                 </h3>
                 <p className="text-slate-600 text-sm mb-6 leading-relaxed">
-                  Have questions about your urological health? Schedule a one-on-one consultation with Dr. Arun Shah today.
+                  Have questions about your urological health? Schedule a
+                  one-on-one consultation with Dr. Arun Shah today.
                 </p>
                 <div className="flex flex-col gap-3">
                   <Button asChild className="w-full justify-center shadow-md">
@@ -173,7 +192,11 @@ export default async function BlogPostPage({ params }: Props) {
                       Book via WhatsApp
                     </a>
                   </Button>
-                  <Button variant="outline" asChild className="w-full justify-center">
+                  <Button
+                    variant="outline"
+                    asChild
+                    className="w-full justify-center"
+                  >
                     <Link href="/contact">Contact Clinic Desk</Link>
                   </Button>
                 </div>
@@ -186,23 +209,39 @@ export default async function BlogPostPage({ params }: Props) {
                 </h4>
                 <ul className="space-y-3 text-sm font-medium">
                   <li>
-                    <Link href="/conditions/kidney-stones" className="text-slate-700 hover:text-primary flex items-center justify-between transition-colors">
-                      Kidney Stones (Patthari) <ArrowLeft className="w-3.5 h-3.5 rotate-180 text-primary" />
+                    <Link
+                      href="/conditions/kidney-stones"
+                      className="text-slate-700 hover:text-primary flex items-center justify-between transition-colors"
+                    >
+                      Kidney Stones (Patthari){" "}
+                      <ArrowLeft className="w-3.5 h-3.5 rotate-180 text-primary" />
                     </Link>
                   </li>
                   <li className="border-t border-slate-200 pt-3">
-                    <Link href="/conditions/prostate-enlargement" className="text-slate-700 hover:text-primary flex items-center justify-between transition-colors">
-                      Prostate Enlargement (BPH) <ArrowLeft className="w-3.5 h-3.5 rotate-180 text-primary" />
+                    <Link
+                      href="/conditions/prostate-enlargement"
+                      className="text-slate-700 hover:text-primary flex items-center justify-between transition-colors"
+                    >
+                      Prostate Enlargement (BPH){" "}
+                      <ArrowLeft className="w-3.5 h-3.5 rotate-180 text-primary" />
                     </Link>
                   </li>
                   <li className="border-t border-slate-200 pt-3">
-                    <Link href="/treatments/rirs-laser-surgery" className="text-slate-700 hover:text-primary flex items-center justify-between transition-colors">
-                      RIRS Laser Surgery <ArrowLeft className="w-3.5 h-3.5 rotate-180 text-primary" />
+                    <Link
+                      href="/treatments/rirs-laser-surgery"
+                      className="text-slate-700 hover:text-primary flex items-center justify-between transition-colors"
+                    >
+                      RIRS Laser Surgery{" "}
+                      <ArrowLeft className="w-3.5 h-3.5 rotate-180 text-primary" />
                     </Link>
                   </li>
                   <li className="border-t border-slate-200 pt-3">
-                    <Link href="/treatments/holep-prostate-surgery" className="text-slate-700 hover:text-primary flex items-center justify-between transition-colors">
-                      HoLEP Prostate Surgery <ArrowLeft className="w-3.5 h-3.5 rotate-180 text-primary" />
+                    <Link
+                      href="/treatments/holep-prostate-surgery"
+                      className="text-slate-700 hover:text-primary flex items-center justify-between transition-colors"
+                    >
+                      HoLEP Prostate Surgery{" "}
+                      <ArrowLeft className="w-3.5 h-3.5 rotate-180 text-primary" />
                     </Link>
                   </li>
                 </ul>

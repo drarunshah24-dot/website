@@ -1,9 +1,22 @@
+/* eslint-disable @typescript-eslint/no-unused-vars, @next/next/no-img-element */
 import { getAllMdx } from "@/lib/mdx";
 import { generateMetadata } from "@/lib/seo";
 import Link from "next/link";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { BookOpen, Calendar, ArrowRight, MessageCircle, User } from "lucide-react";
+import {
+  BookOpen,
+  Calendar,
+  ArrowRight,
+  MessageCircle,
+  User,
+} from "lucide-react";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -58,9 +71,12 @@ export default function BlogPage() {
                   className="border-slate-100 shadow-sm hover:shadow-xl transition-all duration-300 group cursor-pointer h-full flex flex-col bg-white overflow-hidden rounded-2xl"
                 >
                   <div className="aspect-[16/9] relative bg-gradient-to-br from-primary/5 to-primary/10 overflow-hidden">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    {}
                     <img
-                      src={post.frontmatter.image || `https://placehold.co/600x400/e2e8f0/475569?text=${encodeURIComponent(post.frontmatter.category || "Medical+Article")}`}
+                      src={
+                        post.frontmatter.image ||
+                        `https://placehold.co/600x400/e2e8f0/475569?text=${encodeURIComponent(post.frontmatter.category || "Medical+Article")}`
+                      }
                       alt={post.frontmatter.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
@@ -105,7 +121,9 @@ export default function BlogPage() {
               Have a Health Question or Need Consultation?
             </h3>
             <p className="text-slate-600 mb-8 text-lg">
-              If you are experiencing urological symptoms, do not wait. Schedule an appointment with Dr. Arun Kumar Sah for expert evaluation and care.
+              If you are experiencing urological symptoms, do not wait. Schedule
+              an appointment with Dr. Arun Kumar Sah for expert evaluation and
+              care.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" asChild className="rounded-full px-8 shadow-md">

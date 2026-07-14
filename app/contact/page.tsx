@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars, @next/next/no-img-element */
 import { generateMetadata } from "@/lib/seo";
 import { Button } from "@/components/ui/button";
 import { MapPin, Phone, Mail, Clock, Calendar } from "lucide-react";
@@ -5,7 +6,8 @@ import Link from "next/link";
 
 export const metadata = generateMetadata({
   title: "Contact Us | National Urology Center",
-  description: "Get in touch with National Urology Center in Janakpur. Call us at +977 9814834756 or visit our clinic near Dashrath Pond for expert urological care.",
+  description:
+    "Get in touch with National Urology Center in Janakpur. Call us at +977 9814834756 or visit our clinic near Dashrath Pond for expert urological care.",
 });
 
 export default function ContactPage() {
@@ -16,7 +18,7 @@ export default function ContactPage() {
       <section className="relative overflow-hidden bg-slate-50 py-18 md:py-26 border-b border-slate-200 text-slate-900 isolate">
         {/* Janaki Mandir Background Image without Dark Navy Blue Shroud */}
         <div className="absolute inset-0 -z-10 overflow-hidden">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
+          {}
           <img
             src="/images/janaki-mandir.jpg"
             alt="Janaki Mandir Janakpur"
@@ -36,7 +38,9 @@ export default function ContactPage() {
               Contact Us
             </h1>
             <p className="text-lg md:text-xl text-slate-700 leading-relaxed font-medium">
-              We are here to answer your questions and provide the expert urological care you need. Reach out to us via phone, email, or by visiting our clinic near Dashrath Pond in Janakpur.
+              We are here to answer your questions and provide the expert
+              urological care you need. Reach out to us via phone, email, or by
+              visiting our clinic near Dashrath Pond in Janakpur.
             </p>
           </div>
         </div>
@@ -45,11 +49,12 @@ export default function ContactPage() {
       <section className="py-20 bg-white">
         <div className="container mx-auto px-4 md:px-6">
           <div className="max-w-4xl mx-auto">
-            
             {/* Contact Information */}
             <div className="bg-white rounded-3xl p-8 md:p-12 border border-slate-100 shadow-lg">
-              <h2 className="text-3xl font-heading font-bold text-slate-900 mb-8 pb-4 border-b border-slate-100">Clinic Details & Hours</h2>
-              
+              <h2 className="text-3xl font-heading font-bold text-slate-900 mb-8 pb-4 border-b border-slate-100">
+                Clinic Details & Hours
+              </h2>
+
               <div className="grid md:grid-cols-2 gap-10">
                 <div className="space-y-8">
                   <div className="flex gap-4">
@@ -57,10 +62,14 @@ export default function ContactPage() {
                       <MapPin className="w-6 h-6" />
                     </div>
                     <div>
-                      <h3 className="font-bold text-slate-900 text-lg mb-1">Location</h3>
+                      <h3 className="font-bold text-slate-900 text-lg mb-1">
+                        Location
+                      </h3>
                       <p className="text-slate-600 leading-relaxed">
-                        National Urology Center<br />
-                        Near Dashrath Pond, Janakpurdham-06<br />
+                        National Urology Center
+                        <br />
+                        Near Dashrath Pond, Janakpurdham-06
+                        <br />
                         Dhanusha, Madhesh Province, Nepal
                       </p>
                     </div>
@@ -71,13 +80,23 @@ export default function ContactPage() {
                       <Phone className="w-6 h-6" />
                     </div>
                     <div>
-                      <h3 className="font-bold text-slate-900 text-lg mb-1">Phone Numbers</h3>
-                      <p className="text-slate-600 mb-2">Call us for appointments or emergency assistance.</p>
+                      <h3 className="font-bold text-slate-900 text-lg mb-1">
+                        Phone Numbers
+                      </h3>
+                      <p className="text-slate-600 mb-2">
+                        Call us for appointments or emergency assistance.
+                      </p>
                       <div className="flex flex-col gap-1">
-                        <a href="tel:+9779744427743" className="text-primary font-bold text-lg hover:underline">
+                        <a
+                          href="tel:+9779744427743"
+                          className="text-primary font-bold text-lg hover:underline"
+                        >
                           +977 97444-27743 (Appointments & WhatsApp)
                         </a>
-                        <a href="tel:+9779814834756" className="text-slate-700 font-semibold text-base hover:text-primary hover:underline">
+                        <a
+                          href="tel:+9779814834756"
+                          className="text-slate-700 font-semibold text-base hover:text-primary hover:underline"
+                        >
                           +977 98148-34756 (Emergency Care)
                         </a>
                       </div>
@@ -89,9 +108,16 @@ export default function ContactPage() {
                       <Mail className="w-6 h-6" />
                     </div>
                     <div>
-                      <h3 className="font-bold text-slate-900 text-lg mb-1">Email</h3>
-                      <p className="text-slate-600 mb-2">Send us your medical reports or general inquiries.</p>
-                      <a href="mailto:info@drarunshah.com.np" className="text-primary font-medium hover:underline">
+                      <h3 className="font-bold text-slate-900 text-lg mb-1">
+                        Email
+                      </h3>
+                      <p className="text-slate-600 mb-2">
+                        Send us your medical reports or general inquiries.
+                      </p>
+                      <a
+                        href="mailto:info@drarunshah.com.np"
+                        className="text-primary font-medium hover:underline"
+                      >
                         info@drarunshah.com.np
                       </a>
                     </div>
@@ -104,11 +130,17 @@ export default function ContactPage() {
                       <Clock className="w-6 h-6" />
                     </div>
                     <div className="w-full">
-                      <h3 className="font-bold text-slate-900 text-lg mb-3">Opening Hours</h3>
+                      <h3 className="font-bold text-slate-900 text-lg mb-3">
+                        Opening Hours
+                      </h3>
                       <div className="space-y-3 text-base">
                         <div className="flex justify-between items-center pb-1">
-                          <span className="font-medium text-slate-700">Sunday – Saturday (Everyday)</span>
-                          <span className="text-slate-800 font-semibold font-mono text-sm sm:text-base">09:00 AM – 05:00 PM</span>
+                          <span className="font-medium text-slate-700">
+                            Sunday – Saturday (Everyday)
+                          </span>
+                          <span className="text-slate-800 font-semibold font-mono text-sm sm:text-base">
+                            09:00 AM – 05:00 PM
+                          </span>
                         </div>
                       </div>
                       <p className="text-emerald-600 font-medium mt-4 text-sm flex items-center gap-2 bg-emerald-50 px-3 py-2 rounded-xl border border-emerald-100">
@@ -119,8 +151,16 @@ export default function ContactPage() {
                   </div>
 
                   <div className="pt-6 border-t border-slate-200/60">
-                    <Button size="lg" asChild className="rounded-full w-full py-6 text-base shadow-md hover:shadow-xl transition-all">
-                      <a href="https://wa.me/9779744427743?text=I%20would%20like%20to%20book%20an%20appointment." target="_blank" rel="noopener noreferrer">
+                    <Button
+                      size="lg"
+                      asChild
+                      className="rounded-full w-full py-6 text-base shadow-md hover:shadow-xl transition-all"
+                    >
+                      <a
+                        href="https://wa.me/9779744427743?text=I%20would%20like%20to%20book%20an%20appointment."
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
                         <Calendar className="w-5 h-5 mr-2" />
                         Book an Appointment Now
                       </a>
@@ -128,7 +168,6 @@ export default function ContactPage() {
                   </div>
                 </div>
               </div>
-
             </div>
           </div>
         </div>
