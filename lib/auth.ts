@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
+import { getCloudEnv } from "@/lib/env";
 
-export function checkAuth(req: Request): NextResponse | null {
+export async function checkAuth(req: Request): Promise<NextResponse | null> {
   const authHeader = req.headers.get("Authorization");
-  const expectedPassword = process.env.ADMIN_PASSWORD || "admin123";
+  const expectedPassword = (await getCloudEnv("ADMIN_PASSWORD")) || "admin123";
 
   if (!authHeader || authHeader !== `Bearer ${expectedPassword}`) {
     return new NextResponse(

@@ -4,12 +4,13 @@ import path from "path";
 import { saveToGitHub } from "@/lib/github";
 import { checkAuth } from "@/lib/auth";
 import { logger } from "@/lib/logger";
+import { getCloudEnv } from "@/lib/env";
 
 export async function POST(req: Request) {
   const reqId = req.headers.get("x-request-id") || crypto.randomUUID();
   const reqLogger = logger.child({ requestId: reqId });
 
-  const authError = checkAuth(req);
+  const authError = await checkAuth(req);
   if (authError) return authError;
 
   try {
@@ -31,10 +32,10 @@ export async function POST(req: Request) {
         ? base64Content.split(",")[1]
         : base64Content;
 
-      const token = process.env.GITHUB_TOKEN;
-      const owner = process.env.GITHUB_OWNER || "drarunshah24-dot";
-      const repo = process.env.GITHUB_REPO || "website";
-      const branch = process.env.GITHUB_BRANCH || "main";
+      const token = await getCloudEnv("GITHUB_TOKEN");
+      const owner = (await getCloudEnv("GITHUB_OWNER")) || "drarunshah24-dot";
+      const repo = (await getCloudEnv("GITHUB_REPO")) || "website";
+      const branch = (await getCloudEnv("GITHUB_BRANCH")) || "main";
 
       const targetPath = `public/images/${filename}`;
       const githubApiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${targetPath}`;
@@ -163,7 +164,8 @@ export async function POST(req: Request) {
       localSuccess = false;
     }
 
-    if (process.env.GITHUB_TOKEN) {
+    const token = await getCloudEnv("GITHUB_TOKEN");
+    if (token) {
       const ghRes = await saveToGitHub(
         relativeGitHubPath,
         buffer,

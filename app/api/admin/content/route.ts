@@ -5,6 +5,7 @@ import matter from "gray-matter";
 import { saveToGitHub, deleteFromGitHub } from "@/lib/github";
 import { checkAuth } from "@/lib/auth";
 import { logger } from "@/lib/logger";
+import { getCloudEnv } from "@/lib/env";
 
 const contentDir = path.join(process.cwd(), "content");
 const settingsFile = path.join(contentDir, "settings.json");
@@ -93,7 +94,7 @@ export async function POST(req: Request) {
   const reqId = req.headers.get("x-request-id") || crypto.randomUUID();
   const reqLogger = logger.child({ requestId: reqId });
 
-  const authError = checkAuth(req);
+  const authError = await checkAuth(req);
   if (authError) return authError;
 
   try {
@@ -127,7 +128,8 @@ export async function POST(req: Request) {
         localSuccess = false;
       }
 
-      if (process.env.GITHUB_TOKEN) {
+      const token = await getCloudEnv("GITHUB_TOKEN");
+      if (token) {
         const ghRes = await saveToGitHub(
           "content/settings.json",
           settingsContent,
@@ -199,7 +201,8 @@ export async function POST(req: Request) {
       localSuccess = false;
     }
 
-    if (process.env.GITHUB_TOKEN) {
+    const token = await getCloudEnv("GITHUB_TOKEN");
+    if (token) {
       const ghRes = await saveToGitHub(
         relativeGitHubPath,
         fileContent,
@@ -242,7 +245,7 @@ export async function DELETE(req: Request) {
   const reqId = req.headers.get("x-request-id") || crypto.randomUUID();
   const reqLogger = logger.child({ requestId: reqId });
 
-  const authError = checkAuth(req);
+  const authError = await checkAuth(req);
   if (authError) return authError;
 
   try {
@@ -281,7 +284,8 @@ export async function DELETE(req: Request) {
       localSuccess = false;
     }
 
-    if (process.env.GITHUB_TOKEN) {
+    const token = await getCloudEnv("GITHUB_TOKEN");
+    if (token) {
       // First try deleting with expected extension, then fallback to alternate extension
       const relPath = `content/${type}/${slug}.${ext}`;
       const altPath = `content/${type}/${slug}.${ext === "md" ? "mdx" : "md"}`;

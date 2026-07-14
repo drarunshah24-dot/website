@@ -3,12 +3,14 @@
  * This enables permanent file uploads and content changes on serverless deployments.
  */
 
+import { getCloudEnv } from "@/lib/env";
+
 export async function saveToGitHub(
   relativePath: string, // e.g. "content/books/my-book.mdx" or "public/uploads/photo.jpg"
   content: string | Buffer,
   commitMessage: string,
 ): Promise<{ success: boolean; error?: string }> {
-  const token = process.env.GITHUB_TOKEN;
+  const token = await getCloudEnv("GITHUB_TOKEN");
   if (!token) {
     return {
       success: false,
@@ -16,9 +18,9 @@ export async function saveToGitHub(
     };
   }
 
-  const owner = process.env.GITHUB_OWNER || "drarunshah24-dot";
-  const repo = process.env.GITHUB_REPO || "website";
-  const branch = process.env.GITHUB_BRANCH || "main";
+  const owner = (await getCloudEnv("GITHUB_OWNER")) || "drarunshah24-dot";
+  const repo = (await getCloudEnv("GITHUB_REPO")) || "website";
+  const branch = (await getCloudEnv("GITHUB_BRANCH")) || "main";
 
   // Clean relative path leading slash
   const cleanPath = relativePath.replace(/^\/+/, "");
@@ -87,7 +89,7 @@ export async function deleteFromGitHub(
   relativePath: string,
   commitMessage: string,
 ): Promise<{ success: boolean; error?: string }> {
-  const token = process.env.GITHUB_TOKEN;
+  const token = await getCloudEnv("GITHUB_TOKEN");
   if (!token) {
     return {
       success: false,
@@ -95,9 +97,9 @@ export async function deleteFromGitHub(
     };
   }
 
-  const owner = process.env.GITHUB_OWNER || "drarunshah24-dot";
-  const repo = process.env.GITHUB_REPO || "website";
-  const branch = process.env.GITHUB_BRANCH || "main";
+  const owner = (await getCloudEnv("GITHUB_OWNER")) || "drarunshah24-dot";
+  const repo = (await getCloudEnv("GITHUB_REPO")) || "website";
+  const branch = (await getCloudEnv("GITHUB_BRANCH")) || "main";
 
   const cleanPath = relativePath.replace(/^\/+/, "");
   const url = `https://api.github.com/repos/${owner}/${repo}/contents/${cleanPath}`;
