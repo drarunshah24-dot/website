@@ -60,25 +60,29 @@ export async function GET(req: Request) {
           reqLogger.warn({ error: e instanceof Error ? e.message : String(e) }, "Could not fetch settings.json from GitHub API, falling back to local fs");
         }
       }
-      if (!fs.existsSync(settingsFile)) {
-        const defaultSettings = {
-          heroDoctorPhoto: "/dr-arun-shah-urologist-janakpur.jpg",
-          doctorName: "Dr. Arun Shah",
-          subtitle: "Senior Urologist & Gold Medalist",
-        };
-        if (!fs.existsSync(contentDir))
-          fs.mkdirSync(contentDir, { recursive: true });
-        fs.writeFileSync(
-          settingsFile,
-          JSON.stringify(defaultSettings, null, 2),
-        );
-        return NextResponse.json(
-          { success: true, settings: defaultSettings },
-          { headers: NO_CACHE_HEADERS }
-        );
+      const defaultSettings = {
+        heroDoctorPhoto: "/dr-arun-shah-urologist-janakpur.jpg",
+        doctorName: "Dr. Arun Shah",
+        subtitle: "Senior Urologist & Gold Medalist",
+      };
+      try {
+        if (!fs.existsSync(settingsFile)) {
+          if (!fs.existsSync(contentDir))
+            fs.mkdirSync(contentDir, { recursive: true });
+          fs.writeFileSync(
+            settingsFile,
+            JSON.stringify(defaultSettings, null, 2),
+          );
+          return NextResponse.json(
+            { success: true, settings: defaultSettings },
+            { headers: NO_CACHE_HEADERS }
+          );
+        }
+        const settings = JSON.parse(fs.readFileSync(settingsFile, "utf8"));
+        return NextResponse.json({ success: true, settings }, { headers: NO_CACHE_HEADERS });
+      } catch {
+        return NextResponse.json({ success: true, settings: defaultSettings }, { headers: NO_CACHE_HEADERS });
       }
-      const settings = JSON.parse(fs.readFileSync(settingsFile, "utf8"));
-      return NextResponse.json({ success: true, settings }, { headers: NO_CACHE_HEADERS });
     }
 
     if (token) {
@@ -142,17 +146,18 @@ export async function GET(req: Request) {
     }
 
     const folderPath = path.join(contentDir, type);
-    if (!fs.existsSync(folderPath)) {
-      fs.mkdirSync(folderPath, { recursive: true });
-      return NextResponse.json({ success: true, items: [] }, { headers: NO_CACHE_HEADERS });
-    }
+    try {
+      if (!fs.existsSync(folderPath)) {
+        try { fs.mkdirSync(folderPath, { recursive: true }); } catch {}
+        return NextResponse.json({ success: true, items: [] }, { headers: NO_CACHE_HEADERS });
+      }
 
-    const files = fs
-      .readdirSync(folderPath)
-      .filter((f) => f.endsWith(".md") || f.endsWith(".mdx"));
-    const items = files.map((file) => {
-      const filePath = path.join(folderPath, file);
-      const raw = fs.readFileSync(filePath, "utf8");
+      const files = fs
+        .readdirSync(folderPath)
+        .filter((f) => f.endsWith(".md") || f.endsWith(".mdx"));
+      const items = files.map((file) => {
+        const filePath = path.join(folderPath, file);
+        const raw = fs.readFileSync(filePath, "utf8");
       const { data, content } = matter(raw);
       return {
         slug: file.replace(/\.mdx?$/, ""),
@@ -185,6 +190,9 @@ export async function GET(req: Request) {
     );
 
     return NextResponse.json({ success: true, items }, { headers: NO_CACHE_HEADERS });
+    } catch {
+      return NextResponse.json({ success: true, items: [] }, { headers: NO_CACHE_HEADERS });
+    }
   } catch (error: unknown) {
     logger.error(
       {
@@ -276,9 +284,11 @@ export async function POST(req: Request) {
     }
 
     const folderPath = path.join(contentDir, type || "blog");
-    if (!fs.existsSync(folderPath)) {
-      fs.mkdirSync(folderPath, { recursive: true });
-    }
+    try {
+      if (!fs.existsSync(folderPath)) {
+        fs.mkdirSync(folderPath, { recursive: true });
+      }
+    } catch {}
 
     const cleanSlug = slug
       .toLowerCase()

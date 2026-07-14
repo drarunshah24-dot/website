@@ -11,9 +11,11 @@ const blogDirectory = path.join(process.cwd(), "content", "blog");
 
 export async function GET() {
   try {
-    if (!fs.existsSync(blogDirectory)) {
-      fs.mkdirSync(blogDirectory, { recursive: true });
-    }
+    try {
+      if (!fs.existsSync(blogDirectory)) {
+        fs.mkdirSync(blogDirectory, { recursive: true });
+      }
+    } catch {}
 
     const files = fs.readdirSync(blogDirectory).filter(file => file.endsWith(".md") || file.endsWith(".mdx"));
     const posts = files.map(file => {
@@ -52,10 +54,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: false, error: "Missing required fields slug or title" }, { status: 400 });
     }
 
-    if (!fs.existsSync(blogDirectory)) {
-      fs.mkdirSync(blogDirectory, { recursive: true });
-    }
-
     const cleanSlug = slug.toLowerCase().replace(/[^a-z0-9-]+/g, "-").replace(/^-+|-+$/g, "");
     const filePath = path.join(blogDirectory, `${cleanSlug}.md`);
 
@@ -73,7 +71,12 @@ export async function POST(req: Request) {
 
     const fileContent = matter.stringify(content !== undefined ? content : (body.body || ""), frontmatterObj);
 
-    fs.writeFileSync(filePath, fileContent, "utf8");
+    try {
+      if (!fs.existsSync(blogDirectory)) {
+        fs.mkdirSync(blogDirectory, { recursive: true });
+      }
+      fs.writeFileSync(filePath, fileContent, "utf8");
+    } catch {}
 
     revalidatePath("/", "layout");
     revalidatePath("/admin", "layout");
