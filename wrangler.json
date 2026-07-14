@@ -7,5 +7,10 @@
   "assets": {
     "directory": ".open-next/assets",
     "binding": "ASSETS"
+  },
+  "vars": {
+    "GITHUB_OWNER": "drarunshah24-dot",
+    "GITHUB_REPO": "website",
+    "GITHUB_BRANCH": "main"
   }
 }
