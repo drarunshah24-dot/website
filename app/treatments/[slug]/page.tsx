@@ -21,7 +21,7 @@ interface Props {
 
 export async function generateMetadata({ params }: Props) {
   const resolvedParams = await params;
-  const treatment = getMdxBySlug<TreatmentFrontmatter>("treatments", resolvedParams.slug);
+  const treatment = await getMdxBySlug<TreatmentFrontmatter>("treatments", resolvedParams.slug);
   
   if (!treatment) {
     return { title: "Treatment Not Found" };
@@ -37,7 +37,7 @@ export async function generateMetadata({ params }: Props) {
 }
 
 export async function generateStaticParams() {
-  const treatments = getAllMdx<TreatmentFrontmatter>("treatments");
+  const treatments = await getAllMdx<TreatmentFrontmatter>("treatments");
   return treatments.map((treatment) => ({
     slug: treatment.slug,
   }));
@@ -45,7 +45,7 @@ export async function generateStaticParams() {
 
 export default async function TreatmentPage({ params }: Props) {
   const resolvedParams = await params;
-  const treatment = getMdxBySlug<TreatmentFrontmatter>("treatments", resolvedParams.slug);
+  const treatment = await getMdxBySlug<TreatmentFrontmatter>("treatments", resolvedParams.slug);
 
   if (!treatment) {
     notFound();

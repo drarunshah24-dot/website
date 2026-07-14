@@ -18,8 +18,8 @@ interface TreatmentFrontmatter {
   image?: string;
 }
 
-export default function TreatmentsHubPage() {
-  const treatments = getAllMdx<TreatmentFrontmatter>("treatments");
+export default async function TreatmentsHubPage() {
+  const treatments = await getAllMdx<TreatmentFrontmatter>("treatments");
 
   return (
     <>

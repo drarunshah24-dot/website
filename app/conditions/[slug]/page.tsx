@@ -21,7 +21,7 @@ interface Props {
 
 export async function generateMetadata({ params }: Props) {
   const resolvedParams = await params;
-  const condition = getMdxBySlug<ConditionFrontmatter>("conditions", resolvedParams.slug);
+  const condition = await getMdxBySlug<ConditionFrontmatter>("conditions", resolvedParams.slug);
   
   if (!condition) {
     return { title: "Condition Not Found" };
@@ -37,7 +37,7 @@ export async function generateMetadata({ params }: Props) {
 }
 
 export async function generateStaticParams() {
-  const conditions = getAllMdx<ConditionFrontmatter>("conditions");
+  const conditions = await getAllMdx<ConditionFrontmatter>("conditions");
   return conditions.map((condition) => ({
     slug: condition.slug,
   }));
@@ -45,7 +45,7 @@ export async function generateStaticParams() {
 
 export default async function ConditionPage({ params }: Props) {
   const resolvedParams = await params;
-  const condition = getMdxBySlug<ConditionFrontmatter>("conditions", resolvedParams.slug);
+  const condition = await getMdxBySlug<ConditionFrontmatter>("conditions", resolvedParams.slug);
 
   if (!condition) {
     notFound();

@@ -22,7 +22,7 @@ interface Props {
 
 export async function generateMetadata({ params }: Props) {
   const resolvedParams = await params;
-  const book = getMdxBySlug<BookFrontmatter>("books", resolvedParams.slug);
+  const book = await getMdxBySlug<BookFrontmatter>("books", resolvedParams.slug);
   
   if (!book) {
     return { title: "Publication Not Found" };
@@ -38,7 +38,7 @@ export async function generateMetadata({ params }: Props) {
 }
 
 export async function generateStaticParams() {
-  const books = getAllMdx<BookFrontmatter>("books");
+  const books = await getAllMdx<BookFrontmatter>("books");
   return books.map((book) => ({
     slug: book.slug,
   }));
@@ -46,7 +46,7 @@ export async function generateStaticParams() {
 
 export default async function BookPage({ params }: Props) {
   const resolvedParams = await params;
-  const book = getMdxBySlug<BookFrontmatter>("books", resolvedParams.slug);
+  const book = await getMdxBySlug<BookFrontmatter>("books", resolvedParams.slug);
 
   if (!book) {
     notFound();

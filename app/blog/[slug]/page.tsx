@@ -26,7 +26,7 @@ interface Props {
 
 export async function generateMetadata({ params }: Props) {
   const resolvedParams = await params;
-  const post = getMdxBySlug<BlogFrontmatter>("blog", resolvedParams.slug);
+  const post = await getMdxBySlug<BlogFrontmatter>("blog", resolvedParams.slug);
 
   if (!post) {
     return { title: "Article Not Found" };
@@ -42,7 +42,7 @@ export async function generateMetadata({ params }: Props) {
 }
 
 export async function generateStaticParams() {
-  const posts = getAllMdx<BlogFrontmatter>("blog");
+  const posts = await getAllMdx<BlogFrontmatter>("blog");
   return posts.map((post) => ({
     slug: post.slug,
   }));
@@ -50,7 +50,7 @@ export async function generateStaticParams() {
 
 export default async function BlogPostPage({ params }: Props) {
   const resolvedParams = await params;
-  const post = getMdxBySlug<BlogFrontmatter>("blog", resolvedParams.slug);
+  const post = await getMdxBySlug<BlogFrontmatter>("blog", resolvedParams.slug);
 
   if (!post) {
     notFound();

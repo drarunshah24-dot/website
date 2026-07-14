@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -33,6 +32,7 @@ import { ClinicMarquee } from "@/components/ui/ClinicMarquee";
 
 import fs from "fs";
 import path from "path";
+import { getCloudEnv } from "@/lib/env";
 
 const WHATSAPP_URL =
   "https://wa.me/9779744427743?text=I%20would%20like%20to%20book%20an%20appointment.";
@@ -64,27 +64,61 @@ interface FaqFrontmatter {
   category?: string;
 }
 
-export default function Home() {
+export default async function Home() {
   const clinicSchema = buildMedicalClinicSchema();
   const physicianSchema = buildPhysicianSchema();
-  const books = getAllMdx<BookFrontmatter>("books");
-  const galleryRaw = getAllMdx<GalleryFrontmatter>("gallery");
+  const books = await getAllMdx<BookFrontmatter>("books");
+  const galleryRaw = await getAllMdx<GalleryFrontmatter>("gallery");
   const galleryItems = galleryRaw.map((g) => ({
     title: g.frontmatter.title || "Facility Photo",
     image: g.frontmatter.image || "",
   }));
-  const faqs = getAllMdx<FaqFrontmatter>("faq");
+  const faqs = await getAllMdx<FaqFrontmatter>("faq");
 
   let heroPhoto = "/dr-arun-shah-urologist-janakpur.jpg";
   try {
-    const settingsPath = path.join(process.cwd(), "content", "settings.json");
-    if (fs.existsSync(settingsPath)) {
-      const settings = JSON.parse(fs.readFileSync(settingsPath, "utf8"));
-      if (settings.heroDoctorPhoto) {
-        heroPhoto = settings.heroDoctorPhoto;
+    const token = await getCloudEnv("GITHUB_TOKEN");
+    const owner = (await getCloudEnv("GITHUB_OWNER")) || "drarunshah24-dot";
+    const repo = (await getCloudEnv("GITHUB_REPO")) || "website";
+    const branch = (await getCloudEnv("GITHUB_BRANCH")) || "main";
+
+    if (token) {
+      try {
+        const ghRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/content/settings.json?ref=${branch}`, {
+          cache: "no-store",
+          next: { revalidate: 0 },
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: "application/vnd.github.v3+json",
+            "User-Agent": "National-Urology-Center",
+            "Cache-Control": "no-cache, no-store, must-revalidate",
+          },
+        });
+        if (ghRes.ok) {
+          const ghJson = (await ghRes.json().catch(() => ({}))) as { content?: string };
+          if (ghJson.content) {
+            const decoded = Buffer.from(ghJson.content, "base64").toString("utf8");
+            const settings = JSON.parse(decoded);
+            if (settings.heroDoctorPhoto) {
+              heroPhoto = settings.heroDoctorPhoto;
+            }
+          }
+        }
+      } catch {
+        // fallback to local
       }
     }
-  } catch (e) {
+
+    if (heroPhoto === "/dr-arun-shah-urologist-janakpur.jpg") {
+      const settingsPath = path.join(process.cwd(), "content", "settings.json");
+      if (fs.existsSync(settingsPath)) {
+        const settings = JSON.parse(fs.readFileSync(settingsPath, "utf8"));
+        if (settings.heroDoctorPhoto) {
+          heroPhoto = settings.heroDoctorPhoto;
+        }
+      }
+    }
+  } catch {
     // fallback
   }
 

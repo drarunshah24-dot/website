@@ -35,8 +35,8 @@ interface BlogFrontmatter {
   image?: string;
 }
 
-export default function BlogPage() {
-  const posts = getAllMdx<BlogFrontmatter>("blog");
+export default async function BlogPage() {
+  const posts = await getAllMdx<BlogFrontmatter>("blog");
 
   return (
     <>

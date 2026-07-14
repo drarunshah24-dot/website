@@ -18,8 +18,8 @@ interface ConditionFrontmatter {
   image?: string;
 }
 
-export default function ConditionsHubPage() {
-  const conditions = getAllMdx<ConditionFrontmatter>("conditions");
+export default async function ConditionsHubPage() {
+  const conditions = await getAllMdx<ConditionFrontmatter>("conditions");
 
   return (
     <>
