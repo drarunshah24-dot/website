@@ -171,9 +171,9 @@ export async function POST(req: Request) {
         buffer,
         `Upload image: ${fileName} via Admin Portal`,
       );
-      if (!ghRes.success && !localSuccess) {
+      if (!ghRes.success) {
         return NextResponse.json(
-          { success: false, error: ghRes.error },
+          { success: false, error: "GitHub image commit failed: " + ghRes.error },
           { status: 500 },
         );
       }

@@ -135,9 +135,9 @@ export async function POST(req: Request) {
           settingsContent,
           "Update settings.json via Admin Portal",
         );
-        if (!ghRes.success && !localSuccess) {
+        if (!ghRes.success) {
           return NextResponse.json(
-            { success: false, error: ghRes.error },
+            { success: false, error: "GitHub commit failed: " + ghRes.error },
             { status: 500 },
           );
         }
@@ -208,9 +208,9 @@ export async function POST(req: Request) {
         fileContent,
         `Update ${type || "blog"}: ${title} via Admin Portal`,
       );
-      if (!ghRes.success && !localSuccess) {
+      if (!ghRes.success) {
         return NextResponse.json(
-          { success: false, error: ghRes.error },
+          { success: false, error: "GitHub commit failed: " + ghRes.error },
           { status: 500 },
         );
       }
@@ -298,11 +298,11 @@ export async function DELETE(req: Request) {
           altPath,
           `Delete ${type}: ${slug} via Admin Portal`,
         );
-        if (!ghAltRes.success && !localSuccess) {
+        if (!ghAltRes.success) {
           return NextResponse.json(
             {
               success: false,
-              error: ghRes.error || "Failed to delete item from GitHub",
+              error: "GitHub delete failed: " + (ghRes.error || "Item not found on GitHub"),
             },
             { status: 500 },
           );
