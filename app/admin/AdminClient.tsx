@@ -101,23 +101,28 @@ export function AdminClient() {
     }
   }, [isAuthenticated, activeSection]);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoginError("");
     setIsLoggingIn(true);
 
-    setTimeout(() => {
-      if (
-        email.toLowerCase() === "admin@drarunshah.com.np" &&
-        (password === "admin123" || password.length > 0)
-      ) {
+    try {
+      const res = await fetch("/api/admin/auth", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${password}`
+        }
+      });
+      if (res.ok) {
         setIsAuthenticated(true);
-        setIsLoggingIn(false);
       } else {
-        setLoginError("Invalid credentials. Default email: admin@drarunshah.com.np");
-        setIsLoggingIn(false);
+        setLoginError("Invalid password.");
       }
-    }, 500);
+    } catch (err) {
+      setLoginError("An error occurred during login.");
+    } finally {
+      setIsLoggingIn(false);
+    }
   };
 
   const handleCreateNew = () => {
@@ -148,6 +153,9 @@ export function AdminClient() {
     try {
       const res = await fetch(`/api/admin/content?type=${activeSection}&slug=${encodeURIComponent(slug)}`, {
         method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${password}`
+        }
       });
       const data = await res.json();
       if (data.success) {
@@ -176,6 +184,9 @@ export function AdminClient() {
     try {
       const res = await fetch("/api/admin/upload", {
         method: "POST",
+        headers: {
+          Authorization: `Bearer ${password}`
+        },
         body: formData,
       });
       const data = await res.json();
@@ -217,7 +228,10 @@ export function AdminClient() {
     try {
       const res = await fetch("/api/admin/content", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${password}`
+        },
         body: JSON.stringify({
           type: activeSection,
           ...currentItem,

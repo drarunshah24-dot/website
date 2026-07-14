@@ -3,14 +3,21 @@ import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
 import { saveToGitHub, deleteFromGitHub } from "@/lib/github";
+import { checkAuth } from "@/lib/auth";
+import { logger } from "@/lib/logger";
 
 const contentDir = path.join(process.cwd(), "content");
 const settingsFile = path.join(contentDir, "settings.json");
 
 export async function GET(req: Request) {
+  const reqId = req.headers.get("x-request-id") || crypto.randomUUID();
+  const reqLogger = logger.child({ requestId: reqId });
+
   try {
     const { searchParams } = new URL(req.url);
     const type = searchParams.get("type") || "blog"; // 'blog' | 'books' | 'gallery' | 'settings'
+
+    reqLogger.info({ event: "content_fetch_started", type }, `Fetching content of type: ${type}`);
 
     if (type === "settings") {
       if (!fs.existsSync(settingsFile)) {
@@ -54,16 +61,26 @@ export async function GET(req: Request) {
     items.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
     return NextResponse.json({ success: true, items });
-  } catch (error) {
-    console.error(`Error fetching ${req.url}:`, error);
+  } catch (error: unknown) {
+    logger.error(
+      { event: "content_fetch_failed", url: req.url, error: error instanceof Error ? error.message : String(error) },
+      "Failed to fetch content"
+    );
     return NextResponse.json({ success: false, error: "Failed to fetch content" }, { status: 500 });
   }
 }
 
 export async function POST(req: Request) {
+  const reqId = req.headers.get("x-request-id") || crypto.randomUUID();
+  const reqLogger = logger.child({ requestId: reqId });
+
+  const authError = checkAuth(req);
+  if (authError) return authError;
+
   try {
     const body = await req.json();
     const { type, slug, title, date, author, category, draft, image, description, content } = body;
+    reqLogger.info({ event: "content_save_started", type, slug }, `Saving content: ${slug}`);
 
     if (type === "settings") {
       const settingsContent = JSON.stringify(body.settings, null, 2);
@@ -154,17 +171,27 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json({ success: true, slug: cleanSlug });
-  } catch (error) {
-    console.error("Error saving item:", error);
+  } catch (error: unknown) {
+    logger.error(
+      { event: "content_save_failed", error: error instanceof Error ? error.message : String(error) },
+      "Failed to save item"
+    );
     return NextResponse.json({ success: false, error: "Failed to save item" }, { status: 500 });
   }
 }
 
 export async function DELETE(req: Request) {
+  const reqId = req.headers.get("x-request-id") || crypto.randomUUID();
+  const reqLogger = logger.child({ requestId: reqId });
+
+  const authError = checkAuth(req);
+  if (authError) return authError;
+
   try {
     const { searchParams } = new URL(req.url);
     const type = searchParams.get("type") || "blog";
     const slug = searchParams.get("slug");
+    reqLogger.info({ event: "content_delete_started", type, slug }, `Deleting content: ${slug}`);
 
     if (!slug) {
       return NextResponse.json({ success: false, error: "Missing slug parameter" }, { status: 400 });
@@ -212,8 +239,11 @@ export async function DELETE(req: Request) {
     }
 
     return NextResponse.json({ success: true });
-  } catch (error) {
-    console.error("Error deleting item:", error);
+  } catch (error: unknown) {
+    logger.error(
+      { event: "content_delete_failed", error: error instanceof Error ? error.message : String(error) },
+      "Failed to delete item"
+    );
     return NextResponse.json({ success: false, error: "Failed to delete item" }, { status: 500 });
   }
 }

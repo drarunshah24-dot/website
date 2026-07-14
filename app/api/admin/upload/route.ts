@@ -2,12 +2,22 @@ import { NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
 import { saveToGitHub } from "@/lib/github";
+import { checkAuth } from "@/lib/auth";
+import { logger } from "@/lib/logger";
 
 export async function POST(req: Request) {
+  const reqId = req.headers.get("x-request-id") || crypto.randomUUID();
+  const reqLogger = logger.child({ requestId: reqId });
+
+  const authError = checkAuth(req);
+  if (authError) return authError;
+
   try {
     const formData = await req.formData();
     const file = formData.get("file") as File | null;
     const targetName = formData.get("targetName") as string | null;
+
+    reqLogger.info({ event: "upload_started", targetName }, "Processing file upload");
 
     if (!file) {
       return NextResponse.json({ success: false, error: "No file provided" }, { status: 400 });
@@ -70,8 +80,11 @@ export async function POST(req: Request) {
       : `/uploads/${fileName}`;
 
     return NextResponse.json({ success: true, url: publicUrl, fileName });
-  } catch (error) {
-    console.error("Error uploading file:", error);
+  } catch (error: unknown) {
+    logger.error(
+      { event: "upload_failed", error: error instanceof Error ? error.message : String(error) },
+      "Failed to upload image"
+    );
     return NextResponse.json({ success: false, error: "Failed to upload image" }, { status: 500 });
   }
 }
