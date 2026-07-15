@@ -11,6 +11,7 @@ import Script from "next/script";
 import { Calendar, User, ArrowLeft, BookOpen, Share2 } from "lucide-react";
 
 export const dynamic = "force-static";
+export const dynamicParams = false;
 
 interface BlogFrontmatter {
   title: string;

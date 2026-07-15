@@ -7,6 +7,7 @@ import Link from "next/link";
 import { Calendar, Phone, ArrowLeft } from "lucide-react";
 
 export const dynamic = "force-static";
+export const dynamicParams = false;
 
 interface ConditionFrontmatter {
   title: string;
