@@ -56,18 +56,43 @@ export function Footer() {
               </li>
               <li>
                 <Link
-                  href="/conditions"
+                  href="/conditions/kidney-stones"
                   className="hover:text-primary transition-colors flex items-center gap-2"
                 >
-                  <ArrowRight className="w-3 h-3 text-primary" /> Conditions
+                  <ArrowRight className="w-3 h-3 text-primary" /> Kidney Stones
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/treatments"
+                  href="/conditions/prostate-enlargement"
                   className="hover:text-primary transition-colors flex items-center gap-2"
                 >
-                  <ArrowRight className="w-3 h-3 text-primary" /> Treatments
+                  <ArrowRight className="w-3 h-3 text-primary" /> Prostate
+                  Issues
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/conditions/male-sexual-health"
+                  className="hover:text-primary transition-colors flex items-center gap-2"
+                >
+                  <ArrowRight className="w-3 h-3 text-primary" /> Sexual Health
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/conditions/urinary-tract-infections"
+                  className="hover:text-primary transition-colors flex items-center gap-2"
+                >
+                  <ArrowRight className="w-3 h-3 text-primary" /> UTIs
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/treatments/rirs-surgery"
+                  className="hover:text-primary transition-colors flex items-center gap-2"
+                >
+                  <ArrowRight className="w-3 h-3 text-primary" /> RIRS Surgery
                 </Link>
               </li>
               <li>
