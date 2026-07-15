@@ -31,15 +31,6 @@ export function Footer() {
             </p>
             <div className="flex gap-4 mt-2">
               <a
-                href="#"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center hover:bg-primary hover:text-white hover:border-primary transition-colors cursor-pointer"
-                aria-label="Facebook"
-              >
-                f
-              </a>
-              <a
                 href="https://www.linkedin.com/in/arun-shah-6b8a9b1b4/"
                 target="_blank"
                 rel="noopener noreferrer"
