@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { Camera } from "lucide-react";
 import { motion } from "motion/react";
+import Image from "next/image";
 
 export interface GalleryItem {
   title: string;
@@ -14,11 +15,13 @@ export interface GalleryItem {
 
 const defaultGalleryImages: GalleryItem[] = [
   {
-    image: "https://placehold.co/600x400/f8fafc/475569?text=Modern+Waiting+Area",
+    image:
+      "https://placehold.co/600x400/f8fafc/475569?text=Modern+Waiting+Area",
     title: "Modern Waiting Area",
   },
   {
-    image: "https://placehold.co/600x400/f8fafc/475569?text=Advanced+Laser+Tech",
+    image:
+      "https://placehold.co/600x400/f8fafc/475569?text=Advanced+Laser+Tech",
     title: "Advanced Laser Suite",
   },
   {
@@ -39,18 +42,30 @@ const defaultGalleryImages: GalleryItem[] = [
   },
 ];
 
-export function ClinicMarquee({ initialItems = [] }: { initialItems?: GalleryItem[] }) {
-  const [items, setItems] = useState<GalleryItem[]>(initialItems.length > 0 ? initialItems : defaultGalleryImages);
+export function ClinicMarquee({
+  initialItems = [],
+}: {
+  initialItems?: GalleryItem[];
+}) {
+  const [items, setItems] = useState<GalleryItem[]>(
+    initialItems.length > 0 ? initialItems : defaultGalleryImages,
+  );
 
   useEffect(() => {
-    fetch(`/api/admin/content?type=gallery&_ts=${Date.now()}`, { cache: "no-store" })
+    fetch(`/api/admin/content?type=gallery&_ts=${Date.now()}`, {
+      cache: "no-store",
+    })
       .then((res) => res.json())
       .then((data) => {
         if (data.success && data.items && data.items.length > 0) {
-          setItems(data.items.map((i: { title?: string; image?: string }) => ({
-            title: i.title || "Clinic Facility",
-            image: i.image || "https://placehold.co/600x400/f8fafc/475569?text=Facility+Photo",
-          })));
+          setItems(
+            data.items.map((i: { title?: string; image?: string }) => ({
+              title: i.title || "Clinic Facility",
+              image:
+                i.image ||
+                "https://placehold.co/600x400/f8fafc/475569?text=Facility+Photo",
+            })),
+          );
         }
       })
       .catch((err) => console.error("Error loading live gallery:", err));
@@ -79,15 +94,22 @@ export function ClinicMarquee({ initialItems = [] }: { initialItems?: GalleryIte
             className="w-[300px] md:w-[400px] flex-shrink-0 bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden group/card transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
           >
             <div className="relative aspect-[4/3] overflow-hidden bg-slate-100">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={item.image || item.src}
-                alt={item.title || item.alt}
-                className="w-full h-full object-cover transition-transform duration-700 group-hover/card:scale-105"
+              <Image
+                src={
+                  item.image ||
+                  item.src ||
+                  "https://placehold.co/600x400/f8fafc/475569.png?text=Facility+Photo"
+                }
+                alt={item.title || item.alt || "Clinic Image"}
+                fill
+                sizes="(max-width: 768px) 100vw, 400px"
+                className="object-cover transition-transform duration-700 group-hover/card:scale-105"
               />
               <div className="absolute bottom-3 left-3 bg-white/90 backdrop-blur-md px-3.5 py-1.5 rounded-full shadow-sm border border-white/50 flex items-center gap-2">
                 <Camera className="w-3.5 h-3.5 text-primary" />
-                <span className="text-xs font-bold text-slate-800">{item.title || item.label}</span>
+                <span className="text-xs font-bold text-slate-800">
+                  {item.title || item.label}
+                </span>
               </div>
             </div>
           </div>

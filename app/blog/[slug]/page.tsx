@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars, @next/next/no-img-element */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { getMdxBySlug, getAllMdx } from "@/lib/mdx";
 import { generateMetadata as generateSeoMetadata } from "@/lib/seo";
 import { buildArticleSchema } from "@/lib/schema";
@@ -6,11 +6,11 @@ import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import Image from "next/image";
 import Script from "next/script";
 import { Calendar, User, ArrowLeft, BookOpen, Share2 } from "lucide-react";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
+export const revalidate = 3600;
 
 interface BlogFrontmatter {
   title: string;
@@ -108,15 +108,17 @@ export default async function BlogPostPage({ params }: Props) {
         <div className="grid lg:grid-cols-12 gap-12">
           {/* Main Article Body */}
           <div className="lg:col-span-8">
-            <div className="aspect-[16/9] mb-10 rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 shadow-sm">
+            <div className="aspect-[16/9] mb-10 rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 shadow-sm relative">
               {}
-              <img
+              <Image
                 src={
                   post.frontmatter.image ||
-                  `https://placehold.co/800x450/e2e8f0/475569?text=${encodeURIComponent(post.frontmatter.category || "Medical+Article")}`
+                  `https://placehold.co/800x450/e2e8f0/475569.png?text=${encodeURIComponent(post.frontmatter.category || "Medical+Article")}`
                 }
                 alt={post.frontmatter.title}
-                className="w-full h-full object-cover"
+                fill
+                sizes="(max-width: 1200px) 100vw, 800px"
+                className="object-cover"
               />
             </div>
 
@@ -126,12 +128,14 @@ export default async function BlogPostPage({ params }: Props) {
 
             {/* Author Bio Box */}
             <div className="mt-16 p-8 bg-slate-50 rounded-2xl border border-slate-200 flex flex-col md:flex-row items-center md:items-start gap-6">
-              <div className="w-20 h-20 rounded-full overflow-hidden bg-slate-200 shrink-0 border-2 border-primary/20">
+              <div className="w-20 h-20 rounded-full overflow-hidden bg-slate-200 shrink-0 border-2 border-primary/20 relative">
                 {}
-                <img
+                <Image
                   src="/dr-arun-shah-urologist-janakpur.jpg"
                   alt="Dr. Arun Shah"
-                  className="w-full h-full object-cover object-top"
+                  fill
+                  sizes="80px"
+                  className="object-cover object-top"
                 />
               </div>
               <div>

@@ -1,8 +1,9 @@
-/* eslint-disable @typescript-eslint/no-unused-vars, @next/next/no-img-element */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { generateMetadata } from "@/lib/seo";
 import { Button } from "@/components/ui/button";
 import { MapPin, Phone, Mail, Clock, Calendar } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 export const metadata = generateMetadata({
   title: "Contact Us | National Urology Center",
@@ -19,10 +20,13 @@ export default function ContactPage() {
         {/* Janaki Mandir Background Image without Dark Navy Blue Shroud */}
         <div className="absolute inset-0 -z-10 overflow-hidden">
           {}
-          <img
+          <Image
             src="/images/janaki-mandir.jpg"
             alt="Janaki Mandir Janakpur"
-            className="w-full h-full object-cover object-[center_80%] opacity-40 scale-105 transition-transform duration-1000 hover:scale-100"
+            fill
+            sizes="100vw"
+            priority
+            className="object-cover object-[center_80%] opacity-40 scale-105 transition-transform duration-1000 hover:scale-100"
           />
           {/* Soft Warm White Gradient Overlay for Text Readability & Light Premium Aesthetics */}
           <div className="absolute inset-0 bg-gradient-to-r from-white/95 via-white/85 to-white/60" />

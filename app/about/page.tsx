@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars, @next/next/no-img-element */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { generateMetadata } from "@/lib/seo";
 import { buildPhysicianSchema } from "@/lib/schema";
 import Script from "next/script";
@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import Image from "next/image";
 
 export const metadata = generateMetadata({
   title: "About Dr. Arun Shah | National Urology Center",
@@ -34,11 +35,13 @@ export default function AboutPage() {
       <section className="bg-slate-50 py-16 md:py-24 border-b border-slate-200">
         <div className="container mx-auto px-4 md:px-6">
           <div className="grid md:grid-cols-12 gap-12 items-center">
-            <div className="md:col-span-5 lg:col-span-4 flex items-center justify-center">
-              <img
+            <div className="md:col-span-5 lg:col-span-4 flex items-center justify-center relative aspect-[4/5] w-full max-w-md mx-auto rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
+              <Image
                 src="/dr-arun-shah-urologist-janakpur.jpg"
                 alt="Dr. Arun Shah - Best Urologist in Janakpur"
-                className="w-full max-w-md mx-auto aspect-[4/5] object-cover rounded-2xl shadow-xl border border-slate-100"
+                fill
+                sizes="(max-width: 768px) 100vw, 400px"
+                className="object-cover"
               />
             </div>
 

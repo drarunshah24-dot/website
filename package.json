@@ -50,5 +50,11 @@
     "tailwindcss": "^4",
     "typescript": "^5",
     "wrangler": "^4.110.0"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ]
   }
 }

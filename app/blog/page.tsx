@@ -1,7 +1,8 @@
-/* eslint-disable @typescript-eslint/no-unused-vars, @next/next/no-img-element */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { getAllMdx } from "@/lib/mdx";
 import { generateMetadata } from "@/lib/seo";
 import Link from "next/link";
+import Image from "next/image";
 import {
   Card,
   CardHeader,
@@ -18,9 +19,7 @@ import {
   User,
 } from "lucide-react";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
-
+export const revalidate = 3600;
 export const metadata = generateMetadata({
   title: "Patient Education Blog | National Urology Center",
   description:
@@ -72,13 +71,15 @@ export default async function BlogPage() {
                 >
                   <div className="aspect-[16/9] relative bg-gradient-to-br from-primary/5 to-primary/10 overflow-hidden">
                     {}
-                    <img
+                    <Image
                       src={
                         post.frontmatter.image ||
-                        `https://placehold.co/600x400/e2e8f0/475569?text=${encodeURIComponent(post.frontmatter.category || "Medical+Article")}`
+                        `https://placehold.co/600x400/e2e8f0/475569.png?text=${encodeURIComponent(post.frontmatter.category || "Medical+Article")}`
                       }
                       alt={post.frontmatter.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      className="object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                     <div className="absolute top-4 left-4">
                       <span className="px-3 py-1 bg-white/90 backdrop-blur-sm text-primary text-xs font-bold rounded-full shadow-sm">

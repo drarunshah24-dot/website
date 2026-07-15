@@ -51,7 +51,13 @@ export function AdminClient() {
 
   // Active Section Tab
   const [activeSection, setActiveSection] = useState<
-    "blog" | "books" | "gallery" | "treatments" | "conditions" | "faq" | "hero"
+    | "blog"
+    | "books"
+    | "gallery"
+    | "treatments"
+    | "conditions"
+    | "faq"
+    | "settings"
   >("blog");
 
   // Content List State
@@ -82,16 +88,39 @@ export function AdminClient() {
   const [heroPhotoPreviewUrl, setHeroPhotoPreviewUrl] = useState("");
   const [heroUploadMessage, setHeroUploadMessage] = useState("");
 
+  // Settings State
+  const [siteSettings, setSiteSettings] = useState({
+    doctorName: "Dr. Arun Shah",
+    subtitle: "Senior Urologist & Gold Medalist",
+  });
+  const [isSavingSettings, setIsSavingSettings] = useState(false);
+  const [settingsSaveMessage, setSettingsSaveMessage] = useState("");
+
   const loadItems = async (section = activeSection) => {
-    if (section === "hero") return;
     setIsLoadingItems(true);
     try {
-      const res = await fetch(`/api/admin/content?type=${section}&_ts=${Date.now()}`, {
-        cache: "no-store",
-      });
+      const res = await fetch(
+        `/api/admin/content?type=${section}&_ts=${Date.now()}`,
+        {
+          cache: "no-store",
+        },
+      );
       const data = await res.json();
       if (data.success) {
-        setItems(data.items || []);
+        if (section === "settings") {
+          if (data.settings) {
+            setSiteSettings({
+              doctorName: data.settings.doctorName || "Dr. Arun Shah",
+              subtitle:
+                data.settings.subtitle || "Senior Urologist & Gold Medalist",
+            });
+            if (data.settings.heroDoctorPhoto) {
+              setHeroPhotoPreviewUrl(data.settings.heroDoctorPhoto);
+            }
+          }
+        } else {
+          setItems(data.items || []);
+        }
       }
     } catch (err) {
       console.error("Failed to load content:", err);
@@ -101,10 +130,12 @@ export function AdminClient() {
   };
 
   useEffect(() => {
-    if (isAuthenticated && activeSection !== "hero") {
+    if (isAuthenticated) {
       const t = setTimeout(() => {
         loadItems(activeSection);
-        setActiveTab("list");
+        if (activeSection !== "settings") {
+          setActiveTab("list");
+        }
       }, 0);
       return () => clearTimeout(t);
     }
@@ -134,6 +165,35 @@ export function AdminClient() {
     }
   };
 
+  const handleSaveSettings = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSavingSettings(true);
+    setSettingsSaveMessage("");
+    try {
+      const res = await fetch("/api/admin/content", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${password}`,
+        },
+        body: JSON.stringify({
+          type: "settings",
+          settings: siteSettings,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setSettingsSaveMessage("Homepage settings updated successfully.");
+      } else {
+        setSettingsSaveMessage(data.error || "Failed to update settings.");
+      }
+    } catch (err) {
+      setSettingsSaveMessage("Server error while saving settings.");
+    } finally {
+      setIsSavingSettings(false);
+    }
+  };
+
   const handleCreateNew = () => {
     const today = new Date().toISOString().split("T")[0];
     setCurrentItem({
@@ -147,28 +207,28 @@ export function AdminClient() {
           : activeSection === "gallery"
             ? "Facility"
             : activeSection === "treatments"
-            ? "Surgical Procedure"
-            : activeSection === "conditions"
-            ? "Patient Guide"
-            : activeSection === "faq"
-            ? "General FAQ"
-            : "General Urology",
+              ? "Surgical Procedure"
+              : activeSection === "conditions"
+                ? "Patient Guide"
+                : activeSection === "faq"
+                  ? "General FAQ"
+                  : "General Urology",
       draft: false,
       image: "",
       description:
         activeSection === "books"
           ? "Short book description..."
           : activeSection === "treatments"
-          ? "Brief overview of the treatment procedure..."
-          : activeSection === "conditions"
-          ? "Summary of symptoms or condition..."
-          : "",
+            ? "Brief overview of the treatment procedure..."
+            : activeSection === "conditions"
+              ? "Summary of symptoms or condition..."
+              : "",
       body:
         activeSection === "books" || activeSection === "gallery"
           ? ""
           : activeSection === "faq"
-          ? "Write the clear, concise answer here..."
-          : "Write your article markdown here...",
+            ? "Write the clear, concise answer here..."
+            : "Write your article markdown here...",
     });
     setActiveTab("editor");
     setSaveMessage("");
@@ -189,10 +249,16 @@ export function AdminClient() {
           method: "DELETE",
           headers: {
             Authorization: `Bearer ${password}`,
+          },
         },
-      });
+      );
       const rawText = await res.text();
-      let data: { success: boolean; error?: string; url?: string; [key: string]: unknown } = { success: false, error: rawText || "Server error" };
+      let data: {
+        success: boolean;
+        error?: string;
+        url?: string;
+        [key: string]: unknown;
+      } = { success: false, error: rawText || "Server error" };
       try {
         data = JSON.parse(rawText);
       } catch {
@@ -247,7 +313,13 @@ export function AdminClient() {
       });
 
       const rawText = await res.text();
-      let data: { success: boolean; error?: string; url?: string; rawUrl?: string; [key: string]: unknown } = { success: false, error: rawText || "Server error" };
+      let data: {
+        success: boolean;
+        error?: string;
+        url?: string;
+        rawUrl?: string;
+        [key: string]: unknown;
+      } = { success: false, error: rawText || "Server error" };
       try {
         data = JSON.parse(rawText);
       } catch {
@@ -262,10 +334,18 @@ export function AdminClient() {
             setHeroPhotoPreviewUrl(`${data.url}?_ts=${Date.now()}`);
           }
           setHeroUploadMessage(
-            "1st Page Doctor Photo updated successfully! It is visible here right now, and Cloudflare is rebuilding the site so it appears live on the homepage (~1-2 mins)."
+            "1st Page Doctor Photo updated successfully! It is visible here right now, and Cloudflare is rebuilding the site so it appears live on the homepage (~1-2 mins).",
           );
         } else {
-          setCurrentItem((prev) => ({ ...prev, image: typeof data.rawUrl === "string" && data.rawUrl ? data.rawUrl : (typeof data.url === "string" ? data.url : "") }));
+          setCurrentItem((prev) => ({
+            ...prev,
+            image:
+              typeof data.rawUrl === "string" && data.rawUrl
+                ? data.rawUrl
+                : typeof data.url === "string"
+                  ? data.url
+                  : "",
+          }));
         }
       } else {
         alert("Upload failed: " + (data.error || "Unknown error"));
@@ -309,7 +389,12 @@ export function AdminClient() {
         }),
       });
       const rawText = await res.text();
-      let data: { success: boolean; error?: string; url?: string; [key: string]: unknown } = { success: false, error: rawText || "Server error" };
+      let data: {
+        success: boolean;
+        error?: string;
+        url?: string;
+        [key: string]: unknown;
+      } = { success: false, error: rawText || "Server error" };
       try {
         data = JSON.parse(rawText);
       } catch {
@@ -526,24 +611,25 @@ export function AdminClient() {
           </button>
 
           <button
-            onClick={() => setActiveSection("hero")}
+            onClick={() => setActiveSection("settings")}
             className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition shrink-0 ${
-              activeSection === "hero"
+              activeSection === "settings"
                 ? "bg-blue-600 text-white shadow-md shadow-blue-600/20"
                 : "bg-slate-100 text-slate-600 hover:bg-slate-200"
             }`}
           >
             <UserCheck className="w-4 h-4" />
-            <span>1st Page Doctor Photo</span>
+            <span>Homepage Settings</span>
           </button>
         </div>
       </div>
 
       {/* Main Container */}
       <main className="flex-1 container mx-auto px-4 md:px-6 py-8">
-        {activeSection === "hero" ? (
-          /* 1ST PAGE DOCTOR HERO PHOTO MANAGER */
-          <div className="max-w-3xl mx-auto">
+        {" "}
+        {activeSection === "settings" ? (
+          /* HOMEPAGE SETTINGS MANAGER */
+          <div className="max-w-3xl mx-auto space-y-8">
             <div className="bg-white p-6 md:p-8 rounded-3xl border border-slate-200 shadow-sm">
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center">
@@ -551,65 +637,138 @@ export function AdminClient() {
                 </div>
                 <div>
                   <h2 className="text-xl font-bold text-slate-900">
-                    1st Page Doctor Hero Photo Manager
+                    Homepage Settings
                   </h2>
                   <p className="text-sm text-slate-600">
-                    Upload a new professional photograph for Dr. Arun Shah
-                    displayed prominently on the home page.
+                    Manage the main text and hero photograph displayed
+                    prominently on the home page.
                   </p>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center bg-slate-50 p-6 rounded-2xl border border-slate-200 mb-6">
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-3">
-                    Current Live Homepage Portrait
-                  </p>
-                  <div className="relative aspect-[4/5] w-full max-w-[240px] mx-auto rounded-2xl overflow-hidden shadow-md border border-slate-200 bg-white">
-                    <img
-                      src={heroPhotoPreviewUrl || `/dr-arun-shah-urologist-janakpur.jpg?t=${heroPhotoTimestamp}`}
-                      alt="Dr. Arun Shah"
-                      className="w-full h-full object-cover"
+              <div className="space-y-6">
+                <form
+                  onSubmit={handleSaveSettings}
+                  className="space-y-4 bg-slate-50 p-6 rounded-2xl border border-slate-200"
+                >
+                  <h3 className="font-semibold text-slate-900 mb-2">
+                    Title & Subtitle
+                  </h3>
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-700 mb-1.5">
+                      Doctor Name (Main Title)
+                    </label>
+                    <input
+                      type="text"
+                      value={siteSettings.doctorName}
+                      onChange={(e) =>
+                        setSiteSettings((s) => ({
+                          ...s,
+                          doctorName: e.target.value,
+                        }))
+                      }
+                      required
+                      className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 text-slate-900"
                     />
                   </div>
-                </div>
-
-                <div className="space-y-4">
-                  <p className="text-sm text-slate-700 leading-relaxed">
-                    Select a high-resolution JPG or PNG image of Dr. Arun Shah.
-                    The photo will automatically update across the 1st page Hero
-                    section.
-                  </p>
-
-                  <label className="block w-full cursor-pointer">
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-700 mb-1.5">
+                      Subtitle (e.g. Senior Urologist & Gold Medalist)
+                    </label>
                     <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => handleFileUpload(e, true)}
-                      disabled={isUploading}
-                      className="hidden"
+                      type="text"
+                      value={siteSettings.subtitle}
+                      onChange={(e) =>
+                        setSiteSettings((s) => ({
+                          ...s,
+                          subtitle: e.target.value,
+                        }))
+                      }
+                      required
+                      className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 text-slate-900"
                     />
-                    <div className="w-full py-4 px-6 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-md flex items-center justify-center gap-2 transition">
-                      {isUploading ? (
+                  </div>
+
+                  <div className="pt-2">
+                    <button
+                      type="submit"
+                      disabled={isSavingSettings}
+                      className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-md transition"
+                    >
+                      {isSavingSettings ? (
                         <>
-                          <RefreshCw className="w-5 h-5 animate-spin" />
-                          <span>Uploading & Replacing...</span>
+                          <RefreshCw className="w-4 h-4 animate-spin" />
+                          <span>Saving...</span>
                         </>
                       ) : (
                         <>
-                          <Upload className="w-5 h-5" />
-                          <span>Upload New Doctor Photo</span>
+                          <Save className="w-4 h-4" />
+                          <span>Save Settings</span>
                         </>
                       )}
-                    </div>
-                  </label>
+                    </button>
+                    {settingsSaveMessage && (
+                      <p className="mt-3 text-sm text-emerald-600 font-medium">
+                        {settingsSaveMessage}
+                      </p>
+                    )}
+                  </div>
+                </form>
 
-                  {heroUploadMessage && (
-                    <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 text-xs font-medium flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" />
-                      <span>{heroUploadMessage}</span>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center bg-slate-50 p-6 rounded-2xl border border-slate-200 mb-6">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-3">
+                      Current Live Homepage Portrait
+                    </p>
+                    <div className="relative aspect-[4/5] w-full max-w-[240px] mx-auto rounded-2xl overflow-hidden shadow-md border border-slate-200 bg-white">
+                      <img
+                        src={
+                          heroPhotoPreviewUrl ||
+                          `/dr-arun-shah-urologist-janakpur.jpg?t=${heroPhotoTimestamp}`
+                        }
+                        alt="Dr. Arun Shah"
+                        className="w-full h-full object-cover"
+                      />
                     </div>
-                  )}
+                  </div>
+
+                  <div className="space-y-4">
+                    <p className="text-sm text-slate-700 leading-relaxed">
+                      Select a high-resolution JPG or PNG image of Dr. Arun
+                      Shah. The photo will automatically update across the 1st
+                      page Hero section.
+                    </p>
+
+                    <label className="block w-full cursor-pointer">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => handleFileUpload(e, true)}
+                        disabled={isUploading}
+                        className="hidden"
+                      />
+                      <div className="w-full py-4 px-6 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-md flex items-center justify-center gap-2 transition">
+                        {isUploading ? (
+                          <>
+                            <RefreshCw className="w-5 h-5 animate-spin" />
+                            <span>Uploading & Replacing...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Upload className="w-5 h-5" />
+                            <span>Upload New Doctor Photo</span>
+                          </>
+                        )}
+                      </div>
+                    </label>
+
+                    {heroUploadMessage && (
+                      <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 text-xs font-medium flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" />
+                        <span>{heroUploadMessage}</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -913,8 +1072,8 @@ export function AdminClient() {
                           </label>
                         </div>
                         <p className="text-xs text-slate-500">
-                          Upload any JPG or PNG photo directly from your device or
-                          paste an image URL.
+                          Upload any JPG or PNG photo directly from your device
+                          or paste an image URL.
                         </p>
                       </div>
                     </div>

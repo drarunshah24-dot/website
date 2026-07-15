@@ -38,9 +38,7 @@ const WHATSAPP_URL =
   "https://wa.me/9779744427743?text=I%20would%20like%20to%20book%20an%20appointment.";
 const PHONE_NUMBER = "+9779744427743";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
-
+export const revalidate = 3600;
 export const metadata = generateMetadata({
   title: "National Urology Center - Dr. Arun Shah | Janakpur",
   description:
@@ -76,51 +74,21 @@ export default async function Home() {
   const faqs = await getAllMdx<FaqFrontmatter>("faq");
 
   let heroPhoto = "/dr-arun-shah-urologist-janakpur.jpg";
+  let doctorName = "Dr. Arun Shah";
+  let subtitle = "Senior Urologist & Gold Medalist";
+
   try {
-    const token = await getCloudEnv("GITHUB_TOKEN");
-    const owner = (await getCloudEnv("GITHUB_OWNER")) || "drarunshah24-dot";
-    const repo = (await getCloudEnv("GITHUB_REPO")) || "website";
-    const branch = (await getCloudEnv("GITHUB_BRANCH")) || "main";
-
-    if (token) {
-      try {
-        const ghRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/content/settings.json?ref=${branch}`, {
-          cache: "no-store",
-          next: { revalidate: 0 },
-          headers: {
-            Authorization: `Bearer ${token}`,
-            Accept: "application/vnd.github.v3+json",
-            "User-Agent": "National-Urology-Center",
-            "Cache-Control": "no-cache, no-store, must-revalidate",
-          },
-        });
-        if (ghRes.ok) {
-          const ghJson = (await ghRes.json().catch(() => ({}))) as { content?: string };
-          if (ghJson.content) {
-            const decoded = Buffer.from(ghJson.content, "base64").toString("utf8");
-            const settings = JSON.parse(decoded);
-            if (settings.heroDoctorPhoto) {
-              heroPhoto = settings.heroDoctorPhoto;
-            }
-          }
-        }
-      } catch {
-        // fallback to local
+    const settingsPath = path.join(process.cwd(), "content", "settings.json");
+    if (fs.existsSync(settingsPath)) {
+      const settings = JSON.parse(fs.readFileSync(settingsPath, "utf8"));
+      if (settings.heroDoctorPhoto) {
+        heroPhoto = settings.heroDoctorPhoto;
       }
-
-      if (heroPhoto === "/dr-arun-shah-urologist-janakpur.jpg" || heroPhoto.startsWith("/dr-arun-shah-urologist-janakpur.jpg")) {
-        const ts = heroPhoto.includes("?v=") ? heroPhoto.split("?v=")[1] : "";
-        heroPhoto = `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/public/dr-arun-shah-urologist-janakpur.jpg${ts ? "?v=" + ts : ""}`;
+      if (settings.doctorName) {
+        doctorName = settings.doctorName;
       }
-    }
-
-    if (heroPhoto === "/dr-arun-shah-urologist-janakpur.jpg") {
-      const settingsPath = path.join(process.cwd(), "content", "settings.json");
-      if (fs.existsSync(settingsPath)) {
-        const settings = JSON.parse(fs.readFileSync(settingsPath, "utf8"));
-        if (settings.heroDoctorPhoto) {
-          heroPhoto = settings.heroDoctorPhoto;
-        }
+      if (settings.subtitle) {
+        subtitle = settings.subtitle;
       }
     }
   } catch {
@@ -159,9 +127,9 @@ export default async function Home() {
                   <span className="text-primary">Janakpur</span>
                 </h1>
                 <p className="text-lg md:text-xl text-slate-600 leading-relaxed">
-                  Advanced laser surgery and compassionate treatment by{" "}
+                  {subtitle} by{" "}
                   <span className="font-semibold text-slate-800">
-                    Dr. Arun Shah
+                    {doctorName}
                   </span>
                   . Experience premium healthcare with modern technology.
                 </p>
@@ -225,12 +193,16 @@ export default async function Home() {
             </div>
 
             {/* Right Column: Doctor Image */}
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={heroPhoto}
-              alt="Dr. Arun Shah - Best Urologist in Janakpur"
-              className="w-full max-w-md mx-auto aspect-[4/5] object-cover rounded-2xl shadow-xl relative z-10"
-            />
+            <div className="relative w-full max-w-md mx-auto aspect-[4/5] rounded-2xl shadow-xl z-10 overflow-hidden">
+              <Image
+                src={heroPhoto}
+                alt={`${doctorName} - Best Urologist in Janakpur`}
+                fill
+                sizes="(max-width: 768px) 100vw, 400px"
+                className="object-cover"
+                priority
+              />
+            </div>
           </div>
         </div>
       </section>

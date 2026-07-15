@@ -4,7 +4,14 @@ import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { BookOpen, ArrowLeft, Calendar, User, CheckCircle2 } from "lucide-react";
+import Image from "next/image";
+import {
+  BookOpen,
+  ArrowLeft,
+  Calendar,
+  User,
+  CheckCircle2,
+} from "lucide-react";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -22,8 +29,11 @@ interface Props {
 
 export async function generateMetadata({ params }: Props) {
   const resolvedParams = await params;
-  const book = await getMdxBySlug<BookFrontmatter>("books", resolvedParams.slug);
-  
+  const book = await getMdxBySlug<BookFrontmatter>(
+    "books",
+    resolvedParams.slug,
+  );
+
   if (!book) {
     return { title: "Publication Not Found" };
   }
@@ -46,7 +56,10 @@ export async function generateStaticParams() {
 
 export default async function BookPage({ params }: Props) {
   const resolvedParams = await params;
-  const book = await getMdxBySlug<BookFrontmatter>("books", resolvedParams.slug);
+  const book = await getMdxBySlug<BookFrontmatter>(
+    "books",
+    resolvedParams.slug,
+  );
 
   if (!book) {
     notFound();
@@ -56,7 +69,10 @@ export default async function BookPage({ params }: Props) {
     <>
       <div className="bg-primary/5 py-12 border-b border-primary/10">
         <div className="container mx-auto px-4 md:px-6">
-          <Link href="/" className="inline-flex items-center text-sm font-medium text-slate-500 hover:text-primary mb-6 transition-colors">
+          <Link
+            href="/"
+            className="inline-flex items-center text-sm font-medium text-slate-500 hover:text-primary mb-6 transition-colors"
+          >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Home
           </Link>
@@ -79,23 +95,30 @@ export default async function BookPage({ params }: Props) {
         <div className="container mx-auto px-4 md:px-6">
           <div className="grid md:grid-cols-3 gap-12 max-w-5xl mx-auto items-start">
             <div className="md:col-span-1 bg-slate-50 p-6 rounded-2xl border border-slate-100 shadow-md">
-              <div className="aspect-[3/4] bg-gradient-to-br from-primary/10 to-primary/20 rounded-xl overflow-hidden flex items-center justify-center mb-6 shadow-inner">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="https://placehold.co/400x600/e2e8f0/475569?text=Book+Cover"
+              <div className="aspect-[3/4] bg-gradient-to-br from-primary/10 to-primary/20 rounded-xl overflow-hidden flex items-center justify-center mb-6 shadow-inner relative">
+                {}
+                <Image
+                  src="https://placehold.co/400x600/e2e8f0/475569.png?text=Book+Cover"
                   alt={book.frontmatter.title}
-                  className="w-full h-full object-cover"
+                  fill
+                  sizes="(max-width: 768px) 100vw, 400px"
+                  className="object-cover"
                 />
               </div>
               <div className="space-y-3 text-sm border-t border-slate-200/60 pt-4">
                 <div className="flex items-center gap-2 text-slate-600">
                   <User className="w-4 h-4 text-primary" />
-                  <span><strong>Author:</strong> Dr. Arun Shah</span>
+                  <span>
+                    <strong>Author:</strong> Dr. Arun Shah
+                  </span>
                 </div>
                 {book.frontmatter.date && (
                   <div className="flex items-center gap-2 text-slate-600">
                     <Calendar className="w-4 h-4 text-primary" />
-                    <span><strong>Published:</strong> {new Date(book.frontmatter.date).getFullYear()}</span>
+                    <span>
+                      <strong>Published:</strong>{" "}
+                      {new Date(book.frontmatter.date).getFullYear()}
+                    </span>
                   </div>
                 )}
               </div>
@@ -108,14 +131,17 @@ export default async function BookPage({ params }: Props) {
                   Why This Publication Matters
                 </h3>
                 <p className="text-slate-600 text-base mb-0">
-                  This work represents Dr. Arun Shah&apos;s commitment to advancing urological education and clinical excellence, providing essential insights for surgical practice.
+                  This work represents Dr. Arun Shah&apos;s commitment to
+                  advancing urological education and clinical excellence,
+                  providing essential insights for surgical practice.
                 </p>
               </div>
               <MDXRemote source={book.content} />
-              
+
               <div className="mt-12 pt-8 border-t border-slate-100 flex flex-col sm:flex-row gap-4 justify-between items-center">
                 <div className="text-sm text-slate-500">
-                  Need a consultation with Dr. Arun Shah regarding urological conditions?
+                  Need a consultation with Dr. Arun Shah regarding urological
+                  conditions?
                 </div>
                 <Button asChild className="rounded-full">
                   <Link href="/contact">Book an Appointment</Link>
