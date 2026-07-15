@@ -30,13 +30,24 @@ export function Footer() {
               laser treatments, kidney stones, and prostate health.
             </p>
             <div className="flex gap-4 mt-2">
-              {/* Social Links Placeholders */}
-              <div className="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center hover:bg-primary hover:text-white hover:border-primary transition-colors cursor-pointer">
+              <a
+                href="#"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center hover:bg-primary hover:text-white hover:border-primary transition-colors cursor-pointer"
+                aria-label="Facebook"
+              >
                 f
-              </div>
-              <div className="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center hover:bg-primary hover:text-white hover:border-primary transition-colors cursor-pointer">
+              </a>
+              <a
+                href="https://www.linkedin.com/in/arun-shah-6b8a9b1b4/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center hover:bg-primary hover:text-white hover:border-primary transition-colors cursor-pointer"
+                aria-label="LinkedIn"
+              >
                 in
-              </div>
+              </a>
             </div>
           </div>
 
