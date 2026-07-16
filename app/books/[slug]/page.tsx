@@ -1,4 +1,4 @@
-import { getMdxBySlug, getAllMdx } from "@/lib/mdx";
+import { getMdxBySlug } from "@/lib/mdx";
 import { generateMetadata as generateSeoMetadata } from "@/lib/seo";
 import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
