@@ -1,7 +1,18 @@
-import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
 import { getCloudEnv } from "@/lib/env";
+
+function getFs(): typeof import("fs") | null {
+  try {
+    if (typeof process !== "undefined" && typeof process.cwd === "function") {
+      // Dynamic require avoids top-level import "node:fs" in Cloudflare worker.js
+      return require("fs");
+    }
+  } catch {
+    // Ignore in Edge environment
+  }
+  return null;
+}
 
 const contentDirectory = path.join(process.cwd(), "content");
 
@@ -42,6 +53,8 @@ function resolveFolderPath(folder: string): string | null {
       path.resolve("./content/blogs"),
     );
   }
+  const fs = getFs();
+  if (!fs) return null;
   for (const dir of checkDirs) {
     try {
       if (fs.existsSync(dir)) return dir;
@@ -53,6 +66,8 @@ function resolveFolderPath(folder: string): string | null {
 }
 
 export function getMdxFiles(folder: string): string[] {
+  const fs = getFs();
+  if (!fs) return [];
   const dirPath = resolveFolderPath(folder);
   if (!dirPath) {
     return [];
@@ -83,7 +98,8 @@ export async function getMdxBySlug<T>(
 
   // Try local fs first (works during build time)
   try {
-    if (typeof process !== "undefined" && typeof process.cwd === "function") {
+    const fs = getFs();
+    if (fs && typeof process !== "undefined" && typeof process.cwd === "function") {
       const dirPath =
         resolveFolderPath(folder) || path.join(contentDirectory, folder);
       let fullPath = path.join(dirPath, `${cleanSlug}.mdx`);
@@ -172,6 +188,8 @@ export async function getMdxBySlug<T>(
   }
 
   try {
+    const fs = getFs();
+    if (!fs) return null;
     const dirPath =
       resolveFolderPath(folder) || path.join(contentDirectory, folder);
     let fullPath = path.join(dirPath, `${cleanSlug}.mdx`);
