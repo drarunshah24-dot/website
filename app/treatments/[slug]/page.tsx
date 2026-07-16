@@ -11,8 +11,10 @@ export const dynamicParams = false;
 
 interface TreatmentFrontmatter {
   title: string;
-  description: string;
+  summary?: string;
   image?: string;
+  seoTitle?: string;
+  seoDescription?: string;
 }
 
 interface Props {
@@ -31,8 +33,12 @@ export async function generateMetadata({ params }: Props) {
   }
 
   return generateSeoMetadata({
-    title: `${treatment.frontmatter.title} | National Urology Center`,
-    description: treatment.frontmatter.description,
+    title:
+      treatment.frontmatter.seoTitle ||
+      `${treatment.frontmatter.title} Treatment | National Urology Center`,
+    description:
+      treatment.frontmatter.seoDescription ||
+      `Learn about ${treatment.frontmatter.title} treatment options with Dr. Arun Shah at National Urology Center, Janakpur.`,
     url: `/treatments/${resolvedParams.slug}`,
     image: treatment.frontmatter.image,
     type: "article",

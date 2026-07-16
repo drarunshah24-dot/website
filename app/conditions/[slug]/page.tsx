@@ -13,6 +13,8 @@ interface ConditionFrontmatter {
   title: string;
   summary: string;
   image?: string;
+  seoTitle?: string;
+  seoDescription?: string;
 }
 
 interface Props {
@@ -31,8 +33,11 @@ export async function generateMetadata({ params }: Props) {
   }
 
   return generateSeoMetadata({
-    title: `${condition.frontmatter.title} | National Urology Center`,
-    description: condition.frontmatter.summary,
+    title:
+      condition.frontmatter.seoTitle ||
+      `${condition.frontmatter.title} | National Urology Center`,
+    description:
+      condition.frontmatter.seoDescription || condition.frontmatter.summary,
     url: `/conditions/${resolvedParams.slug}`,
     image: condition.frontmatter.image,
     type: "article",

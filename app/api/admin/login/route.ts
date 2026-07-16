@@ -14,6 +14,10 @@ export async function POST(req: Request) {
       );
     }
 
+    // Security Hardening: Artificial delay to mitigate brute-force attacks
+    // This limits login attempts to 1 per second per thread
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
     if (password === expectedPassword) {
       const cookieStore = await cookies();
       cookieStore.set("admin_session", password, {

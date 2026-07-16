@@ -6,6 +6,7 @@ import { AdminNav, AdminSection } from "@/components/admin/AdminNav";
 import { LoginForm } from "@/components/admin/LoginForm";
 import { ContentList, ContentItem } from "@/components/admin/ContentList";
 import { SettingsForm } from "@/components/admin/SettingsForm";
+import { HelpGuide } from "@/components/admin/HelpGuide";
 import { ToastProvider } from "@/components/ui/toast";
 
 const ContentEditor = dynamic(
@@ -44,6 +45,8 @@ export function AdminClient() {
     draft: false,
     image: "",
     description: "",
+    seoTitle: "",
+    seoDescription: "",
     body: "",
   });
 
@@ -128,6 +131,8 @@ export function AdminClient() {
       draft: false,
       image: "",
       description: "",
+      seoTitle: "",
+      seoDescription: "",
       body: "",
     });
     setActiveTab("editor");
@@ -190,6 +195,8 @@ export function AdminClient() {
               heroPhotoTimestamp={heroPhotoTimestamp}
               setHeroPhotoTimestamp={setHeroPhotoTimestamp}
             />
+          ) : activeSection === "help" ? (
+            <HelpGuide />
           ) : activeTab === "list" ? (
             <ContentList
               activeSection={activeSection}

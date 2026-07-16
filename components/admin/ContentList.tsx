@@ -22,6 +22,8 @@ export interface ContentItem {
   draft: boolean;
   image?: string;
   description?: string;
+  seoTitle?: string;
+  seoDescription?: string;
   body: string;
 }
 

@@ -16,9 +16,10 @@ export const dynamicParams = false;
 interface BlogFrontmatter {
   title: string;
   date: string;
-  author: string;
   category: string;
   image?: string;
+  seoTitle?: string;
+  seoDescription?: string;
 }
 
 interface Props {
@@ -34,8 +35,12 @@ export async function generateMetadata({ params }: Props) {
   }
 
   return generateSeoMetadata({
-    title: `${post.frontmatter.title} | National Urology Center`,
-    description: `Read ${post.frontmatter.title} by Dr. Arun Shah at National Urology Center, Janakpur.`,
+    title:
+      post.frontmatter.seoTitle ||
+      `${post.frontmatter.title} | National Urology Center`,
+    description:
+      post.frontmatter.seoDescription ||
+      `Read ${post.frontmatter.title} by Dr. Arun Shah at National Urology Center, Janakpur.`,
     url: `/blog/${resolvedParams.slug}`,
     image: post.frontmatter.image,
     type: "article",
@@ -58,8 +63,10 @@ export default async function BlogPostPage({ params }: Props) {
   }
 
   const articleSchema = buildArticleSchema({
-    title: post.frontmatter.title,
-    description: `Read ${post.frontmatter.title} by Dr. Arun Shah at National Urology Center, Janakpur.`,
+    title: post.frontmatter.seoTitle || post.frontmatter.title,
+    description:
+      post.frontmatter.seoDescription ||
+      `Read ${post.frontmatter.title} by Dr. Arun Shah at National Urology Center, Janakpur.`,
     url: `https://drarunshah.com.np/blog/${resolvedParams.slug}`,
     datePublished: post.frontmatter.date,
   });

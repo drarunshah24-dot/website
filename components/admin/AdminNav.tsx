@@ -11,7 +11,8 @@ import {
   HelpCircle,
   BookOpen,
   Building2,
-  UserCheck,
+  Settings,
+  LifeBuoy,
 } from "lucide-react";
 
 export type AdminSection =
@@ -21,7 +22,8 @@ export type AdminSection =
   | "faq"
   | "books"
   | "gallery"
-  | "settings";
+  | "settings"
+  | "help";
 
 interface AdminNavProps {
   activeSection: AdminSection;
@@ -41,7 +43,8 @@ export function AdminNav({
     { id: "faq", icon: HelpCircle, label: "FAQ" },
     { id: "books", icon: BookOpen, label: "Books & Publications" },
     { id: "gallery", icon: Building2, label: "Facilities" },
-    { id: "settings", icon: UserCheck, label: "Homepage Settings" },
+    { id: "settings", icon: Settings, label: "Homepage Settings" },
+    { id: "help", icon: LifeBuoy, label: "Help & Guides" },
   ] as const;
 
   return (

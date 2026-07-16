@@ -174,6 +174,8 @@ export async function GET(req: Request) {
                   draft: Boolean(data.draft),
                   image: data.image || data.cover || "",
                   description: data.description || data.summary || "",
+                  seoTitle: data.seoTitle || "",
+                  seoDescription: data.seoDescription || "",
                   body: content,
                   content: content,
                 };
@@ -236,6 +238,8 @@ export async function GET(req: Request) {
           draft: Boolean(data.draft),
           image: data.image || data.cover || "",
           description: data.description || data.summary || "",
+          seoTitle: data.seoTitle || "",
+          seoDescription: data.seoDescription || "",
           body: content,
           content: content,
         };
@@ -290,6 +294,8 @@ export async function POST(req: Request) {
       draft,
       image,
       description,
+      seoTitle,
+      seoDescription,
       content,
     } = body;
     reqLogger.info(
@@ -420,6 +426,9 @@ export async function POST(req: Request) {
         frontmatter.summary = description; // legacy support
       }
     }
+
+    if (seoTitle) frontmatter.seoTitle = seoTitle;
+    if (seoDescription) frontmatter.seoDescription = seoDescription;
 
     const fileContent = matter.stringify(
       content !== undefined ? content : body.body || "",
