@@ -1,60 +1,56 @@
-# Dr. Arun Shah Website
+﻿# National Urology Center - Dr. Arun Shah
 
-A modern medical portfolio and blog website for Dr. Arun Shah, built with Next.js, Tailwind CSS, and optimized for Cloudflare Pages using OpenNext.
+World-Class Urology Care in Janakpur by Dr. Arun Shah. Advanced laser surgery and compassionate treatment.
 
-## Quick Start
+## Technology Stack
 
-1. Clone the repository
-2. Install dependencies:
-   ```bash
+- **Framework**: Next.js (App Router)
+- **Deployment**: Vercel
+- **Styling**: Tailwind CSS
+- **Content Management**: Custom React Admin Portal (Syncs to GitHub API)
+- **Analytics**: Vercel Analytics & Speed Insights
+- **SEO**: Dynamic Sitemap & Robots.txt generated automatically
+
+## Local Development
+
+1. Install dependencies:
+   \\\ash
    npm install
-   ```
-3. Set up your environment variables by creating a `.env` file:
-   ```env
-   # Required for local Admin Portal testing
+   \\\
+
+2. Create a \.env.local\ file with the following variables:
+   \\\env
    ADMIN_PASSWORD=your_secure_password
-   # Required for GitHub commits through the Admin Portal
-   GITHUB_TOKEN=your_github_personal_access_token
+   GITHUB_TOKEN=your_personal_access_token # Requires 'repo' scope
    GITHUB_OWNER=drarunshah24-dot
    GITHUB_REPO=website
-   ```
-4. Run the development server:
-   ```bash
+   GITHUB_BRANCH=main
+   \\\
+
+3. Run the development server:
+   \\\ash
    npm run dev
-   ```
-5. Open [http://localhost:3000](http://localhost:3000) to view the site.
-6. Open [http://localhost:3000/admin](http://localhost:3000/admin) to view the Admin Portal.
+   \\\
 
-## Commands
+4. Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-| Command | Description |
-|---------|-------------|
-| `npm run dev` | Start the Next.js development server |
-| `npm run build` | Production build (uses OpenNext for Cloudflare) |
-| `npm run lint` | Run ESLint |
-| `npx tsc --noEmit` | Run TypeScript type checking |
+## Deployment on Vercel
 
-## Architecture
+This project is optimized for **Vercel**. 
 
-This project is fully statically generated (SSG) with Incremental Static Regeneration (ISR) to provide instantaneous page loads. It leverages the following technologies:
-- **Next.js 14+ (App Router)**: Framework for React.
-- **OpenNext**: Build adapter to seamlessly run Next.js on Cloudflare Pages.
-- **MDX & Gray Matter**: Used for rendering markdown-based content for blogs, conditions, and treatments.
-- **Tailwind CSS**: Utility-first CSS framework for styling.
+To deploy:
+1. Connect your GitHub repository to Vercel.
+2. Under **Environment Variables** in Vercel, add:
+   - \ADMIN_PASSWORD\ (Mandatory for Admin Portal access)
+   - \GITHUB_TOKEN\ (Mandatory for Admin Portal to save content permanently)
+3. Deploy! Vercel will automatically build and host the site.
 
-### Admin Portal & GitHub Integration
-The project features a custom-built Admin Portal at `/admin`. Instead of using a database, the Admin Portal interacts directly with the local file system (in development) and commits changes back to the GitHub repository using the GitHub API (in production).
-This ensures that the repository remains the single source of truth for all content, triggering an automatic rebuild on Cloudflare Pages whenever content is updated.
+## Contributing
 
-See `docs/decisions/` for more details on architectural decisions.
+Please see \CONTRIBUTING.md\ for guidelines on branch naming and commit messages.
 
-## Deployment
+## SEO & Observability
 
-The application is deployed on **Cloudflare Pages**.
-
-- Pushes to the `main` branch automatically trigger a deployment.
-- CI quality gates (Lint, TypeScript, Unit Tests) run via GitHub Actions on Pull Requests.
-- Ensure that `ADMIN_PASSWORD` and `GITHUB_TOKEN` are set in the Cloudflare Pages environment variables.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-
+- **Sitemap**: Automatically available at \/sitemap.xml\
+- **Robots**: Automatically available at \/robots.txt\
+- **Metrics**: Check the Vercel Dashboard for Web Analytics and Speed Insights.

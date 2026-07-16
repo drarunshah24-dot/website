@@ -1,66 +1,37 @@
 import { MetadataRoute } from "next";
-import { getAllMdx } from "@/lib/mdx";
 
-export const dynamic = "force-static";
-
-export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = "https://drarunshah.com.np";
-
-  // Fetch all MDX content
-  const blogs = await getAllMdx<{ date?: string }>("blog");
-  const books = await getAllMdx<{ date?: string }>("books");
-  const conditions = await getAllMdx<{ date?: string }>("conditions");
-  const treatments = await getAllMdx<{ date?: string }>("treatments");
-
-  const blogRoutes = blogs.map((post) => ({
-    url: `${baseUrl}/blog/${post.slug}`,
-    lastModified: new Date(post.frontmatter.date || new Date()),
-    changeFrequency: "weekly" as const,
-    priority: 0.7,
-  }));
-
-  const bookRoutes = books.map((post) => ({
-    url: `${baseUrl}/books/${post.slug}`,
-    lastModified: new Date(post.frontmatter.date || new Date()),
-    changeFrequency: "monthly" as const,
-    priority: 0.6,
-  }));
-
-  const conditionRoutes = conditions.map((post) => ({
-    url: `${baseUrl}/conditions/${post.slug}`,
-    lastModified: new Date(post.frontmatter.date || new Date()),
-    changeFrequency: "monthly" as const,
-    priority: 0.8,
-  }));
-
-  const treatmentRoutes = treatments.map((post) => ({
-    url: `${baseUrl}/treatments/${post.slug}`,
-    lastModified: new Date(post.frontmatter.date || new Date()),
-    changeFrequency: "monthly" as const,
-    priority: 0.8,
-  }));
-
-  const staticRoutes = [
-    "",
-    "/about",
-    "/blog",
-    "/books",
-    "/contact",
-    "/privacy-policy",
-    "/terms",
-    "/disclaimer",
-  ].map((route) => ({
-    url: `${baseUrl}${route}`,
-    lastModified: new Date(),
-    changeFrequency: "weekly" as const,
-    priority: route === "" ? 1 : 0.9,
-  }));
-
   return [
-    ...staticRoutes,
-    ...blogRoutes,
-    ...bookRoutes,
-    ...conditionRoutes,
-    ...treatmentRoutes,
+    {
+      url: baseUrl,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 1,
+    },
+    {
+      url: `${baseUrl}/about`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/services`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/contact`,
+      lastModified: new Date(),
+      changeFrequency: "yearly",
+      priority: 0.5,
+    },
+    {
+      url: `${baseUrl}/blog`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.7,
+    },
   ];
 }
