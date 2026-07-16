@@ -39,25 +39,38 @@ export async function GET(req: Request) {
     if (type === "settings") {
       if (token) {
         try {
-          const ghRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/content/settings.json?ref=${branch}&_ts=${Date.now()}`, {
-            cache: "no-store",
-            headers: {
-              Authorization: `Bearer ${token}`,
-              Accept: "application/vnd.github.v3+json",
-              "User-Agent": "National-Urology-Center-Admin",
-              "Cache-Control": "no-cache, no-store, must-revalidate",
+          const ghRes = await fetch(
+            `https://api.github.com/repos/${owner}/${repo}/contents/content/settings.json?ref=${branch}&_ts=${Date.now()}`,
+            {
+              cache: "no-store",
+              headers: {
+                Authorization: `Bearer ${token}`,
+                Accept: "application/vnd.github.v3+json",
+                "User-Agent": "National-Urology-Center-Admin",
+                "Cache-Control": "no-cache, no-store, must-revalidate",
+              },
             },
-          });
+          );
           if (ghRes.ok) {
-            const ghJson = (await ghRes.json().catch(() => ({}))) as { content?: string };
+            const ghJson = (await ghRes.json().catch(() => ({}))) as {
+              content?: string;
+            };
             if (ghJson.content) {
-              const decoded = Buffer.from(ghJson.content, "base64").toString("utf8");
+              const decoded = Buffer.from(ghJson.content, "base64").toString(
+                "utf8",
+              );
               const settings = JSON.parse(decoded);
-              return NextResponse.json({ success: true, settings }, { headers: NO_CACHE_HEADERS });
+              return NextResponse.json(
+                { success: true, settings },
+                { headers: NO_CACHE_HEADERS },
+              );
             }
           }
         } catch (e) {
-          reqLogger.warn({ error: e instanceof Error ? e.message : String(e) }, "Could not fetch settings.json from GitHub API, falling back to local fs");
+          reqLogger.warn(
+            { error: e instanceof Error ? e.message : String(e) },
+            "Could not fetch settings.json from GitHub API, falling back to local fs",
+          );
         }
       }
       const defaultSettings = {
@@ -75,45 +88,70 @@ export async function GET(req: Request) {
           );
           return NextResponse.json(
             { success: true, settings: defaultSettings },
-            { headers: NO_CACHE_HEADERS }
+            { headers: NO_CACHE_HEADERS },
           );
         }
         const settings = JSON.parse(fs.readFileSync(settingsFile, "utf8"));
-        return NextResponse.json({ success: true, settings }, { headers: NO_CACHE_HEADERS });
+        return NextResponse.json(
+          { success: true, settings },
+          { headers: NO_CACHE_HEADERS },
+        );
       } catch {
-        return NextResponse.json({ success: true, settings: defaultSettings }, { headers: NO_CACHE_HEADERS });
+        return NextResponse.json(
+          { success: true, settings: defaultSettings },
+          { headers: NO_CACHE_HEADERS },
+        );
       }
     }
 
     if (token) {
       try {
-        const ghRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/content/${type}?ref=${branch}`, {
-          cache: "no-store",
-          next: { revalidate: 0 },
-          headers: {
-            Authorization: `Bearer ${token}`,
-            Accept: "application/vnd.github.v3+json",
-            "User-Agent": "National-Urology-Center-Admin",
-            "Cache-Control": "no-cache, no-store, must-revalidate",
+        const ghRes = await fetch(
+          `https://api.github.com/repos/${owner}/${repo}/contents/content/${type}?ref=${branch}`,
+          {
+            cache: "no-store",
+            next: { revalidate: 0 },
+            headers: {
+              Authorization: `Bearer ${token}`,
+              Accept: "application/vnd.github.v3+json",
+              "User-Agent": "National-Urology-Center-Admin",
+              "Cache-Control": "no-cache, no-store, must-revalidate",
+            },
           },
-        });
+        );
         if (ghRes.ok) {
-          const ghFiles = (await ghRes.json().catch(() => ([]))) as Array<{ name?: string; download_url?: string; path?: string }>;
+          const ghFiles = (await ghRes.json().catch(() => [])) as Array<{
+            name?: string;
+            download_url?: string;
+            path?: string;
+          }>;
           if (Array.isArray(ghFiles)) {
-            const mdFiles = ghFiles.filter((f) => f && f.name && (f.name.endsWith(".md") || f.name.endsWith(".mdx")) && (f.path || f.download_url));
+            const mdFiles = ghFiles.filter(
+              (f) =>
+                f &&
+                f.name &&
+                (f.name.endsWith(".md") || f.name.endsWith(".mdx")) &&
+                (f.path || f.download_url),
+            );
             const items = await Promise.all(
               mdFiles.map(async (fileObj) => {
-                const targetPath = fileObj.path || `content/${type}/${fileObj.name}`;
-                const raw = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${targetPath}?ref=${branch}`, {
-                  cache: "no-store",
-                  next: { revalidate: 0 },
-                  headers: {
-                    Authorization: `Bearer ${token}`,
-                    Accept: "application/vnd.github.v3.raw",
-                    "User-Agent": "National-Urology-Center-Admin",
-                    "Cache-Control": "no-cache, no-store, must-revalidate",
+                const targetPath =
+                  fileObj.path || `content/${type}/${fileObj.name}`;
+                const raw = await fetch(
+                  `https://api.github.com/repos/${owner}/${repo}/contents/${targetPath}?ref=${branch}`,
+                  {
+                    cache: "no-store",
+                    next: { revalidate: 0 },
+                    headers: {
+                      Authorization: `Bearer ${token}`,
+                      Accept: "application/vnd.github.v3.raw",
+                      "User-Agent": "National-Urology-Center-Admin",
+                      "Cache-Control": "no-cache, no-store, must-revalidate",
+                    },
                   },
-                }).then((r) => r.ok ? r.text() : "").catch(() => "");
+                )
+                  .then((r) => (r.ok ? r.text() : ""))
+                  .catch(() => "");
                 const { data, content } = matter(raw);
                 return {
                   slug: (fileObj.name || "").replace(/\.mdx?$/, ""),
@@ -125,36 +163,49 @@ export async function GET(req: Request) {
                     (type === "books"
                       ? "Publication"
                       : type === "gallery"
-                      ? "Facility"
-                      : type === "treatments"
-                      ? "Treatment"
-                      : type === "conditions"
-                      ? "Condition"
-                      : type === "faq"
-                      ? "Patient Care"
-                      : "General Urology"),
+                        ? "Facility"
+                        : type === "treatments"
+                          ? "Treatment"
+                          : type === "conditions"
+                            ? "Condition"
+                            : type === "faq"
+                              ? "Patient Care"
+                              : "General Urology"),
                   draft: Boolean(data.draft),
                   image: data.image || data.cover || "",
                   description: data.description || data.summary || "",
                   body: content,
                   content: content,
                 };
-              })
+              }),
             );
-            items.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-            return NextResponse.json({ success: true, items }, { headers: NO_CACHE_HEADERS });
+            items.sort(
+              (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+            );
+            return NextResponse.json(
+              { success: true, items },
+              { headers: NO_CACHE_HEADERS },
+            );
           }
         }
       } catch (e) {
-        reqLogger.warn({ error: e instanceof Error ? e.message : String(e) }, `Could not fetch ${type} from GitHub API, falling back to local fs`);
+        reqLogger.warn(
+          { error: e instanceof Error ? e.message : String(e) },
+          `Could not fetch ${type} from GitHub API, falling back to local fs`,
+        );
       }
     }
 
     const folderPath = path.join(contentDir, type);
     try {
       if (!fs.existsSync(folderPath)) {
-        try { fs.mkdirSync(folderPath, { recursive: true }); } catch {}
-        return NextResponse.json({ success: true, items: [] }, { headers: NO_CACHE_HEADERS });
+        try {
+          fs.mkdirSync(folderPath, { recursive: true });
+        } catch {}
+        return NextResponse.json(
+          { success: true, items: [] },
+          { headers: NO_CACHE_HEADERS },
+        );
       }
 
       const files = fs
@@ -163,40 +214,46 @@ export async function GET(req: Request) {
       const items = files.map((file) => {
         const filePath = path.join(folderPath, file);
         const raw = fs.readFileSync(filePath, "utf8");
-      const { data, content } = matter(raw);
-      return {
-        slug: file.replace(/\.mdx?$/, ""),
-        title: data.title || "Untitled",
-        date: data.date || "2026-07-08",
-        author: data.author || "Dr. Arun Shah",
-        category:
-          data.category ||
-          (type === "books"
-            ? "Publication"
-            : type === "gallery"
-            ? "Facility"
-            : type === "treatments"
-            ? "Treatment"
-            : type === "conditions"
-            ? "Condition"
-            : type === "faq"
-            ? "Patient Care"
-            : "General Urology"),
-        draft: Boolean(data.draft),
-        image: data.image || data.cover || "",
-        description: data.description || data.summary || "",
-        body: content,
-        content: content,
-      };
-    });
+        const { data, content } = matter(raw);
+        return {
+          slug: file.replace(/\.mdx?$/, ""),
+          title: data.title || "Untitled",
+          date: data.date || "2026-07-08",
+          author: data.author || "Dr. Arun Shah",
+          category:
+            data.category ||
+            (type === "books"
+              ? "Publication"
+              : type === "gallery"
+                ? "Facility"
+                : type === "treatments"
+                  ? "Treatment"
+                  : type === "conditions"
+                    ? "Condition"
+                    : type === "faq"
+                      ? "Patient Care"
+                      : "General Urology"),
+          draft: Boolean(data.draft),
+          image: data.image || data.cover || "",
+          description: data.description || data.summary || "",
+          body: content,
+          content: content,
+        };
+      });
 
-    items.sort(
-      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
-    );
+      items.sort(
+        (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+      );
 
-    return NextResponse.json({ success: true, items }, { headers: NO_CACHE_HEADERS });
+      return NextResponse.json(
+        { success: true, items },
+        { headers: NO_CACHE_HEADERS },
+      );
     } catch {
-      return NextResponse.json({ success: true, items: [] }, { headers: NO_CACHE_HEADERS });
+      return NextResponse.json(
+        { success: true, items: [] },
+        { headers: NO_CACHE_HEADERS },
+      );
     }
   } catch (error: unknown) {
     logger.error(
@@ -278,7 +335,10 @@ export async function POST(req: Request) {
 
       revalidatePath("/", "layout");
       revalidatePath("/admin", "layout");
-      return NextResponse.json({ success: true }, { headers: NO_CACHE_HEADERS });
+      return NextResponse.json(
+        { success: true },
+        { headers: NO_CACHE_HEADERS },
+      );
     }
 
     if (!slug || !title) {
@@ -327,32 +387,44 @@ export async function POST(req: Request) {
     const frontmatter: Record<string, unknown> = {
       title,
       date: date || new Date().toISOString().split("T")[0],
+      draft: Boolean(draft),
     };
 
-    if (type === "books") {
-      if (image) frontmatter.cover = image;
-      if (description) frontmatter.description = description;
-    } else if (type === "gallery") {
-      if (image) frontmatter.image = image;
-      if (description) frontmatter.description = description;
-    } else if (type === "treatments" || type === "conditions") {
-      if (description) {
-        frontmatter.description = description;
-        frontmatter.summary = description;
-      }
-      if (image) frontmatter.image = image;
-      if (category) frontmatter.category = category;
-    } else if (type === "faq") {
-      if (category) frontmatter.category = category;
-    } else {
-      frontmatter.author = author || "Dr. Arun Shah";
-      frontmatter.category = category || "General Urology";
-      frontmatter.draft = Boolean(draft);
-      if (image) frontmatter.image = image;
-      if (description) frontmatter.description = description;
+    // Dynamically assign optional fields if they are provided
+    if (author) frontmatter.author = author;
+    else if (
+      !["books", "gallery", "treatments", "conditions", "faq"].includes(
+        type || "",
+      )
+    ) {
+      frontmatter.author = "Dr. Arun Shah";
     }
 
-    const fileContent = matter.stringify(content !== undefined ? content : (body.body || ""), frontmatter);
+    if (category) frontmatter.category = category;
+    else if (
+      !["books", "gallery", "treatments", "conditions", "faq"].includes(
+        type || "",
+      )
+    ) {
+      frontmatter.category = "General Urology";
+    }
+
+    if (image) {
+      frontmatter.image = image;
+      if (type === "books") frontmatter.cover = image; // legacy support
+    }
+
+    if (description) {
+      frontmatter.description = description;
+      if (type === "treatments" || type === "conditions") {
+        frontmatter.summary = description; // legacy support
+      }
+    }
+
+    const fileContent = matter.stringify(
+      content !== undefined ? content : body.body || "",
+      frontmatter,
+    );
 
     let localSuccess = false;
     try {
@@ -373,7 +445,10 @@ export async function POST(req: Request) {
         `Update ${type || "blog"}: ${title} via Admin Portal`,
       );
       // Clean up alternate extension on GitHub if it exists to avoid collisions
-      await deleteFromGitHub(altRelativeGitHubPath, `Cleanup old ext ${altExt}`).catch(() => {});
+      await deleteFromGitHub(
+        altRelativeGitHubPath,
+        `Cleanup old ext ${altExt}`,
+      ).catch(() => {});
       if (!ghRes.success && !localSuccess) {
         return NextResponse.json(
           { success: false, error: "GitHub commit failed: " + ghRes.error },
@@ -398,7 +473,10 @@ export async function POST(req: Request) {
     revalidatePath("/treatments", "layout");
     revalidatePath("/conditions", "layout");
 
-    return NextResponse.json({ success: true, slug: cleanSlug }, { headers: NO_CACHE_HEADERS });
+    return NextResponse.json(
+      { success: true, slug: cleanSlug },
+      { headers: NO_CACHE_HEADERS },
+    );
   } catch (error: unknown) {
     logger.error(
       {
@@ -471,7 +549,8 @@ export async function DELETE(req: Request) {
         return NextResponse.json(
           {
             success: false,
-            error: "GitHub delete failed: Item not found on GitHub or local filesystem",
+            error:
+              "GitHub delete failed: Item not found on GitHub or local filesystem",
           },
           { status: 500, headers: NO_CACHE_HEADERS },
         );

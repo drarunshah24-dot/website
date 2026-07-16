@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import { UserCheck, RefreshCw, Save, Upload } from "lucide-react";
 import { useToast } from "../ui/toast";
 
@@ -42,7 +43,7 @@ export function SettingsForm({
       } else {
         showToast(data.error || "Failed to update settings.", "error");
       }
-    } catch (err) {
+    } catch {
       showToast("Server error while saving settings.", "error");
     } finally {
       setIsSavingSettings(false);
@@ -102,7 +103,7 @@ export function SettingsForm({
       } else {
         showToast("Upload failed: " + (data.error || "Unknown error"), "error");
       }
-    } catch (err) {
+    } catch {
       showToast("Failed to upload image.", "error");
     } finally {
       setIsUploading(false);
@@ -191,13 +192,14 @@ export function SettingsForm({
                 Current Live Homepage Portrait
               </p>
               <div className="relative mx-auto aspect-[4/5] w-full max-w-[240px] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-md">
-                <img
+                <Image
                   src={
                     heroPhotoPreviewUrl ||
                     `/dr-arun-shah-urologist-janakpur.jpg?t=${heroPhotoTimestamp}`
                   }
                   alt="Dr. Arun Shah"
-                  className="h-full w-full object-cover"
+                  fill
+                  className="object-cover"
                 />
               </div>
             </div>

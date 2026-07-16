@@ -32,7 +32,6 @@ import { ClinicMarquee } from "@/components/ui/ClinicMarquee";
 
 import fs from "fs";
 import path from "path";
-import { getCloudEnv } from "@/lib/env";
 
 const WHATSAPP_URL =
   "https://wa.me/9779744427743?text=I%20would%20like%20to%20book%20an%20appointment.";

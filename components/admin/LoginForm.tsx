@@ -23,13 +23,14 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ password }),
       });
+      const data = await res.json();
       if (res.ok) {
         onSuccess();
       } else {
-        setError("Invalid password.");
+        setError(data.error || "Login failed");
       }
-    } catch (err) {
-      setError("An error occurred during login.");
+    } catch {
+      setError("An unexpected error occurred");
     } finally {
       setIsLoggingIn(false);
     }

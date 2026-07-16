@@ -5,8 +5,14 @@ import { cookies } from "next/headers";
 export async function POST(req: Request) {
   try {
     const { password } = await req.json();
-    const expectedPassword =
-      (await getCloudEnv("ADMIN_PASSWORD")) || "admin123";
+    const expectedPassword = await getCloudEnv("ADMIN_PASSWORD");
+
+    if (!expectedPassword) {
+      return NextResponse.json(
+        { success: false, error: "Authentication not configured on server" },
+        { status: 500 },
+      );
+    }
 
     if (password === expectedPassword) {
       const cookieStore = await cookies();

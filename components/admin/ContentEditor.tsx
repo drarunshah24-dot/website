@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import { ArrowLeft, Upload, Save, Image as ImageIcon } from "lucide-react";
 import { AdminSection } from "./AdminNav";
 import { ContentItem } from "./ContentList";
@@ -73,7 +74,7 @@ export default function ContentEditor({
       } else {
         showToast("Upload failed: " + (data.error || "Unknown error"), "error");
       }
-    } catch (err) {
+    } catch {
       showToast("Failed to upload image.", "error");
     } finally {
       setIsUploading(false);
@@ -117,7 +118,7 @@ export default function ContentEditor({
       } else {
         showToast("Save failed: " + (data.error || "Unknown error"), "error");
       }
-    } catch (err) {
+    } catch {
       showToast("Failed to save.", "error");
     } finally {
       setIsSaving(false);
@@ -184,11 +185,14 @@ export default function ContentEditor({
               </label>
               <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
                 {currentItem.image ? (
-                  <img
-                    src={currentItem.image}
-                    alt="Preview"
-                    className="h-20 w-20 rounded-xl border border-slate-300 object-cover"
-                  />
+                  <div className="relative h-20 w-20 overflow-hidden rounded-xl border border-slate-300">
+                    <Image
+                      src={currentItem.image}
+                      alt="Preview"
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
                 ) : (
                   <div className="flex h-20 w-20 items-center justify-center rounded-xl bg-slate-200 text-slate-400">
                     <ImageIcon className="h-6 w-6" />

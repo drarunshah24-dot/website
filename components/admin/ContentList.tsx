@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import {
   RefreshCw,
   Plus,
@@ -177,11 +178,14 @@ export function ContentList({
                   >
                     <td className="px-6 py-4">
                       {item.image ? (
-                        <img
-                          src={item.image}
-                          alt={item.title}
-                          className="h-14 w-14 rounded-xl border border-slate-200 object-cover"
-                        />
+                        <div className="relative h-14 w-14 overflow-hidden rounded-xl border border-slate-200">
+                          <Image
+                            src={item.image}
+                            alt={item.title}
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
                       ) : (
                         <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-slate-100 text-slate-400">
                           <ImageIcon className="h-5 w-5" />
