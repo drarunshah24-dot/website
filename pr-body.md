@@ -1,25 +1,27 @@
-## Overview
-This PR completes the comprehensive overhaul of the Administration Panel. It transitions the previously monolithic `AdminClient.tsx` file into a modular, maintainable component-based architecture. Additionally, it fundamentally secures the authentication mechanism by replacing plaintext state tokens with secure HttpOnly session cookies. 
+﻿## Summary of Changes
 
-## 🛠 Component Extraction & Refactoring
-The massive 1,100+ line `AdminClient.tsx` has been decoupled into single-responsibility components under `components/admin/`:
-- **`AdminNav.tsx`**: Handles sidebar navigation and logout.
-- **`ContentList.tsx`**: Displays content cards, handles search, and item management.
-- **`ContentEditor.tsx`**: Provides the UI for creating and editing markdown content and uploading images.
-- **`SettingsForm.tsx`**: Specifically handles homepage configuration and doctor profile settings.
-- **`LoginForm.tsx`**: Encapsulates the authentication UI.
-- **`Toast.tsx`**: A new reusable notification system for UX feedback.
+This PR incorporates both the **Vercel Migration** and a comprehensive **Security, Performance, and Quality Hardening** audit.
 
-## 🔒 Security & Hardening
-- **HttpOnly Session Cookies**: Removed the vulnerable plaintext `adminToken` React state. Authentication is now handled server-side using secure, HttpOnly, SameSite cookies (`admin_session`) via Next.js `cookies()`. This prevents XSS attacks from extracting the token and ensures the user stays logged in across page refreshes.
-- **Dedicated Auth Routes**: Added standard `/api/admin/login` and `/api/admin/logout` edge-compatible API routes.
-- **Removed Dead Code**: Permanently deleted the insecure, unused `app/api/admin/posts/route.ts` API route which was incompatible with Cloudflare Pages and posed a security risk.
+### 1. Vercel Migration
+- Removed Cloudflare Pages specific dependencies (@opennextjs/cloudflare) and config files (wrangler.json, open-next.config.ts).
+- Updated 
+ext.config.ts to remove the Cloudflare export and re-enabled native Next.js Image Optimization.
+- Refactored lib/env.ts to rely on standard process.env (as Vercel natively supports this), removing Cloudflare Edge runtime context workarounds.
 
-## ⚡ Performance Optimizations
-- **Lazy Loading**: The heavy `ContentEditor` component (which includes the markdown parser) is now dynamically imported (`next/dynamic`) with `ssr: false`. It only loads the JS bundle when the user explicitly clicks "Add" or "Edit," keeping the initial admin dashboard load instantaneous.
+### 2. Security Hardening
+- **Critical Authentication Fix:** Removed the hardcoded fallback password ("admin123") in lib/auth.ts and pp/api/admin/login/route.ts. If the ADMIN_PASSWORD environment variable is not set on Vercel, the system will securely fail rather than allowing unauthorized access.
+- **Upload Validation:** Enforced a strict 5MB size limit and file type extension validation (images only) in pp/api/admin/upload/route.ts to prevent malicious executable uploads.
 
-## ✨ UX & Quality
-- **Global Toast Notifications**: Implemented a non-blocking toast notification system to give the doctor clear visual feedback ("Saved successfully", "Image uploaded", "Login failed").
-- **Error Observability**: Instrumented the new API routes with `console.error` logging in `catch` blocks to provide trace visibility for debugging authentication failures.
+### 3. Code Simplification & Performance
+- **Simplified API Logic:** Refactored the monolithic if/else block in the Content API into dynamic frontmatter assignment.
+- **Optimized Images:** Replaced raw <img> tags in the Admin Panel with <Image> from 
+ext/image to improve LCP and bandwidth usage, resolving ESLint warnings.
+- **Dead Code Cleanup:** Removed several unused err variables caught by ESLint.
 
-*All TypeScript and ESLint warnings have been resolved, and the Next.js compilation succeeds.*
+All 
+pm run lint and 
+pm run build checks pass successfully.
+
+### Next Steps for Handover:
+1. Ensure the ADMIN_PASSWORD and GITHUB_TOKEN environment variables are securely set in the Vercel project settings.
+2. Ensure Vercel is connected to your .com.np domain via Cloudflare DNS.
