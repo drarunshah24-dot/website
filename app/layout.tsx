@@ -13,8 +13,11 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 });
 
 import { LayoutWrapper } from "@/components/layout/LayoutWrapper";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://drarunshah.com.np"),
   title: "National Urology Center - Dr. Arun Shah",
   description:
     "World-Class Urology Care in Janakpur by Dr. Arun Shah. Advanced laser surgery and compassionate treatment.",
@@ -75,6 +78,8 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <LayoutWrapper>{children}</LayoutWrapper>
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
