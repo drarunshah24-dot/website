@@ -63,7 +63,7 @@ export async function getMdxBySlug<T>(
         };
       }
     }
-  } catch (e) {
+  } catch {
     // Ignore fs errors, fall back to GitHub API
   }
 
@@ -142,7 +142,7 @@ export async function getAllMdx<T>(folder: string): Promise<MdxFile<T>[]> {
         }
       }
     }
-  } catch (e) {
+  } catch {
     // Ignore fs errors, fall back to GitHub API
   }
 

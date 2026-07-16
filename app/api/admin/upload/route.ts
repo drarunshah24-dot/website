@@ -20,14 +20,27 @@ export async function POST(req: Request) {
   try {
     const contentType = req.headers.get("content-type") || "";
 
+    const ALLOWED_TYPES = [
+      "image/jpeg",
+      "image/png",
+      "image/webp",
+      "image/avif",
+      "image/gif",
+    ];
+    // Next.js config limits body size, but we'll enforce 5MB here as well
+    const MAX_SIZE_BYTES = 5 * 1024 * 1024;
+
     // 1. Handle Client-Side Base64 JSON Payload (Cloudflare Pages / Serverless Architecture)
     if (contentType.includes("application/json")) {
       const { filename, base64Content, commitMessage } = await req.json();
 
       if (!filename || !base64Content) {
         return NextResponse.json(
-          { success: false, error: "Missing filename or base64Content in payload" },
-          { status: 400 }
+          {
+            success: false,
+            error: "Missing filename or base64Content in payload",
+          },
+          { status: 400 },
         );
       }
 
@@ -37,6 +50,27 @@ export async function POST(req: Request) {
         : base64Content;
 
       const buffer = Buffer.from(cleanBase64, "base64");
+
+      if (buffer.length > MAX_SIZE_BYTES) {
+        return NextResponse.json(
+          { success: false, error: "File exceeds 5MB size limit" },
+          { status: 400 },
+        );
+      }
+
+      // Basic validation based on extension
+      const ext = path.extname(filename).toLowerCase();
+      const allowedExts = [".jpg", ".jpeg", ".png", ".webp", ".avif", ".gif"];
+      if (!allowedExts.includes(ext)) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: "Invalid file type. Only images are allowed.",
+          },
+          { status: 400 },
+        );
+      }
+
       const isHero = filename === "dr-arun-shah-urologist-janakpur.jpg";
       const targetDir = isHero
         ? path.join(process.cwd(), "public")
@@ -80,7 +114,9 @@ export async function POST(req: Request) {
               },
             });
             if (checkRes.ok) {
-              const checkData = (await checkRes.json().catch(() => ({}))) as { sha?: string };
+              const checkData = (await checkRes.json().catch(() => ({}))) as {
+                sha?: string;
+              };
               return checkData.sha as string | undefined;
             }
           } catch (_e) {
@@ -137,13 +173,20 @@ export async function POST(req: Request) {
           }
           if (!localSuccess) {
             return NextResponse.json(
-              { success: false, error: errMsg || "GitHub API PUT request failed and local save failed." },
-              { status: putRes.status }
+              {
+                success: false,
+                error:
+                  errMsg ||
+                  "GitHub API PUT request failed and local save failed.",
+              },
+              { status: putRes.status },
             );
           }
         }
 
-        const putData = (await putRes.json().catch(() => ({}))) as { content?: { download_url?: string; html_url?: string } };
+        const putData = (await putRes.json().catch(() => ({}))) as {
+          content?: { download_url?: string; html_url?: string };
+        };
         const rawUrl = putData.content?.download_url
           ? `${putData.content.download_url}?v=${Date.now()}`
           : `${publicUrl}?v=${Date.now()}`;
@@ -163,15 +206,22 @@ export async function POST(req: Request) {
                 },
               });
               if (sRes.ok) {
-                const sJson = (await sRes.json().catch(() => ({}))) as { content?: string };
+                const sJson = (await sRes.json().catch(() => ({}))) as {
+                  content?: string;
+                };
                 if (sJson.content) {
-                  currentSettings = JSON.parse(Buffer.from(sJson.content, "base64").toString("utf8"));
+                  currentSettings = JSON.parse(
+                    Buffer.from(sJson.content, "base64").toString("utf8"),
+                  );
                 }
               }
             } catch {}
 
             currentSettings.heroDoctorPhoto = rawUrl;
-            const settingsBuffer = Buffer.from(JSON.stringify(currentSettings, null, 2), "utf8").toString("base64");
+            const settingsBuffer = Buffer.from(
+              JSON.stringify(currentSettings, null, 2),
+              "utf8",
+            ).toString("base64");
             await fetch(settingsUrl, {
               method: "PUT",
               headers: {
@@ -188,7 +238,10 @@ export async function POST(req: Request) {
               }),
             });
           } catch (_err) {
-            console.warn("Could not update settings.json for hero photo:", _err);
+            console.warn(
+              "Could not update settings.json for hero photo:",
+              _err,
+            );
           }
         }
 
@@ -209,8 +262,11 @@ export async function POST(req: Request) {
 
       if (!localSuccess) {
         return NextResponse.json(
-          { success: false, error: "GITHUB_TOKEN not set and local save failed." },
-          { status: 500 }
+          {
+            success: false,
+            error: "GITHUB_TOKEN not set and local save failed.",
+          },
+          { status: 500 },
         );
       }
 
@@ -247,11 +303,31 @@ export async function POST(req: Request) {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
+    if (buffer.length > MAX_SIZE_BYTES) {
+      return NextResponse.json(
+        { success: false, error: "File exceeds 5MB size limit" },
+        { status: 400 },
+      );
+    }
+
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Invalid file type. Only images are allowed.",
+        },
+        { status: 400 },
+      );
+    }
+
     let fileName = targetName;
     let targetDir = path.join(process.cwd(), "public", "images");
     let relativeGitHubPath = "public/images/";
 
-    if (targetName === "dr-arun-shah-urologist-janakpur.jpg" || file.name === "dr-arun-shah-urologist-janakpur.jpg") {
+    if (
+      targetName === "dr-arun-shah-urologist-janakpur.jpg" ||
+      file.name === "dr-arun-shah-urologist-janakpur.jpg"
+    ) {
       targetDir = path.join(process.cwd(), "public");
       fileName = "dr-arun-shah-urologist-janakpur.jpg";
       relativeGitHubPath = "public/dr-arun-shah-urologist-janakpur.jpg";
@@ -285,7 +361,10 @@ export async function POST(req: Request) {
       );
       if (!ghRes.success && !localSuccess) {
         return NextResponse.json(
-          { success: false, error: "GitHub image commit failed: " + ghRes.error },
+          {
+            success: false,
+            error: "GitHub image commit failed: " + ghRes.error,
+          },
           { status: 500 },
         );
       }
@@ -293,7 +372,8 @@ export async function POST(req: Request) {
       return NextResponse.json(
         {
           success: false,
-          error: "Serverless filesystem is read-only. Add GITHUB_TOKEN to upload images permanently.",
+          error:
+            "Serverless filesystem is read-only. Add GITHUB_TOKEN to upload images permanently.",
         },
         { status: 500 },
       );
