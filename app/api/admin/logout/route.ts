@@ -3,9 +3,19 @@ import { cookies } from "next/headers";
 
 export async function POST() {
   try {
-    const cookieStore = await cookies();
-    cookieStore.delete("admin_session");
-    return NextResponse.json({ success: true });
+    const response = NextResponse.json({ success: true });
+
+    // Explicitly clear the cookie on the response object to guarantee deletion
+    response.cookies.set({
+      name: "admin_session",
+      value: "",
+      expires: new Date(0),
+      path: "/",
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+    });
+
+    return response;
   } catch (error) {
     console.error("[Logout API Error]:", error);
     return NextResponse.json(

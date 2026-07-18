@@ -54,10 +54,10 @@ export function AdminClient() {
   useEffect(() => {
     fetch("/api/admin/content?type=blog&_ts=" + Date.now())
       .then((res) => {
-        if (res.status === 401) {
-          setIsAuthenticated(false);
-        } else {
+        if (res.ok) {
           setIsAuthenticated(true);
+        } else {
+          setIsAuthenticated(false);
         }
       })
       .catch(() => setIsAuthenticated(false));
@@ -72,8 +72,10 @@ export function AdminClient() {
           cache: "no-store",
         },
       );
-      if (res.status === 401) {
-        setIsAuthenticated(false);
+      if (!res.ok) {
+        if (res.status === 401 || res.status === 500) {
+          setIsAuthenticated(false);
+        }
         return;
       }
       const data = await res.json();
