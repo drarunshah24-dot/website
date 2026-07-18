@@ -10,4 +10,4 @@ image: >-
 ~~**This is a website of a Urologist**~~
 
 **
-SOME CHNAGES WE ARE DOING TO CHECK IF IT WORKS**
+SOME CHNAGES WE ARE DO**ING TO CHECK** IF IT WORKS**
