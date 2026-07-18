@@ -18,7 +18,8 @@ export const dynamicParams = true;
 
 interface BookFrontmatter {
   title: string;
-  cover: string;
+  cover?: string;
+  image?: string;
   description: string;
   date: string;
 }
@@ -42,7 +43,7 @@ export async function generateMetadata({ params }: Props) {
     title: `${book.frontmatter.title} | Dr. Arun Shah`,
     description: book.frontmatter.description,
     url: `/books/${resolvedParams.slug}`,
-    image: book.frontmatter.cover,
+    image: book.frontmatter.cover || book.frontmatter.image,
     type: "article",
   });
 }
@@ -91,7 +92,11 @@ export default async function BookPage({ params }: Props) {
               <div className="aspect-[3/4] bg-gradient-to-br from-primary/10 to-primary/20 rounded-xl overflow-hidden flex items-center justify-center mb-6 shadow-inner relative">
                 {}
                 <Image
-                  src="https://placehold.co/400x600/e2e8f0/475569.png?text=Book+Cover"
+                  src={
+                    book.frontmatter.cover ||
+                    book.frontmatter.image ||
+                    "https://placehold.co/400x600/e2e8f0/475569.png?text=Book+Cover"
+                  }
                   alt={book.frontmatter.title}
                   fill
                   sizes="(max-width: 768px) 100vw, 400px"
