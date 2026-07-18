@@ -22,6 +22,9 @@ export async function GET(req: Request) {
   const reqId = req.headers.get("x-request-id") || crypto.randomUUID();
   const reqLogger = logger.child({ requestId: reqId });
 
+  const authError = await checkAuth(req);
+  if (authError) return authError;
+
   try {
     const { searchParams } = new URL(req.url);
     const type = searchParams.get("type") || "blog"; // 'blog' | 'books' | 'gallery' | 'treatments' | 'conditions' | 'faq' | 'settings'
@@ -430,10 +433,8 @@ export async function POST(req: Request) {
     if (seoTitle) frontmatter.seoTitle = seoTitle;
     if (seoDescription) frontmatter.seoDescription = seoDescription;
 
-    const fileContent = matter.stringify(
-      content !== undefined ? content : body.body || "",
-      frontmatter,
-    );
+    const finalContent = body.body !== undefined ? body.body : content || "";
+    const fileContent = matter.stringify(finalContent, frontmatter);
 
     let localSuccess = false;
     try {
