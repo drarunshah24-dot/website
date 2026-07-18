@@ -32,6 +32,10 @@ const nextConfig: NextConfig = {
             value:
               "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com https://cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob: https://placehold.co https://avatars.githubusercontent.com https://raw.githubusercontent.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://api.github.com https://cloudflareinsights.com; frame-src 'self' https://www.youtube.com https://www.google.com;",
           },
+          {
+            key: "Permissions-Policy",
+            value: "camera=(), microphone=(), geolocation=()",
+          },
         ],
       },
     ];
