@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getCloudEnv } from "@/lib/env";
 import { cookies } from "next/headers";
 import { getRedisClient } from "./redis";
+import crypto from "crypto";
 
 export async function checkAuth(req: Request): Promise<NextResponse | null> {
   const cookieStore = await cookies();
@@ -48,12 +49,16 @@ export async function checkAuth(req: Request): Promise<NextResponse | null> {
       );
     }
   } else {
-    // Stateless mode (Fallback): Check if the provided token matches the master password directly
-    if (providedToken !== expectedPassword) {
+    // Stateless mode (Fallback): Check if the provided token matches the hashed master password
+    const hashedExpectedPassword = crypto
+      .createHash("sha256")
+      .update(expectedPassword)
+      .digest("hex");
+    if (providedToken !== hashedExpectedPassword) {
       return new NextResponse(
         JSON.stringify({
           success: false,
-          error: "Unauthorized. Invalid or missing password.",
+          error: "Unauthorized. Invalid or missing session.",
         }),
         {
           status: 401,

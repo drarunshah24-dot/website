@@ -3,6 +3,7 @@ import { getCloudEnv } from "@/lib/env";
 import { cookies } from "next/headers";
 import { getRedisClient } from "@/lib/redis";
 import { Ratelimit } from "@upstash/ratelimit";
+import crypto from "crypto";
 
 export async function POST(req: Request) {
   try {
@@ -54,7 +55,11 @@ export async function POST(req: Request) {
     if (password === expectedPassword) {
       const cookieStore = await cookies();
 
-      let sessionValue = password; // Fallback stateless mode
+      // Fallback stateless mode: Use SHA-256 hash of the password
+      let sessionValue = crypto
+        .createHash("sha256")
+        .update(password)
+        .digest("hex");
 
       if (redis) {
         // Stateful mode: Generate UUID and store in Redis
