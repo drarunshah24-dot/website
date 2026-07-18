@@ -277,6 +277,29 @@ export default function ContentEditor({
               </div>
             )}
 
+            {(activeSection === "books" ||
+              activeSection === "treatments" ||
+              activeSection === "conditions" ||
+              activeSection === "faq") && (
+              <div>
+                <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-slate-500">
+                  Description / Summary
+                </label>
+                <textarea
+                  rows={3}
+                  value={currentItem.description || ""}
+                  onChange={(e) =>
+                    setCurrentItem({
+                      ...currentItem,
+                      description: e.target.value,
+                    })
+                  }
+                  placeholder="Enter a short summary or description..."
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                />
+              </div>
+            )}
+
             {activeSection !== "faq" && (
               <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
                 <label className="mb-3 block text-xs font-semibold uppercase tracking-wider text-slate-500">
