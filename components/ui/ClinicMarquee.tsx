@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Camera } from "lucide-react";
 import { motion } from "motion/react";
 import Image from "next/image";
@@ -51,25 +51,7 @@ export function ClinicMarquee({
     initialItems.length > 0 ? initialItems : defaultGalleryImages,
   );
 
-  useEffect(() => {
-    fetch(`/api/admin/content?type=gallery&_ts=${Date.now()}`, {
-      cache: "no-store",
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success && data.items && data.items.length > 0) {
-          setItems(
-            data.items.map((i: { title?: string; image?: string }) => ({
-              title: i.title || "Clinic Facility",
-              image:
-                i.image ||
-                "https://placehold.co/600x400/f8fafc/475569?text=Facility+Photo",
-            })),
-          );
-        }
-      })
-      .catch((err) => console.error("Error loading live gallery:", err));
-  }, []);
+  // Items are fetched on the server and passed as initialItems
 
   const list = items.length > 0 ? items : defaultGalleryImages;
   // Duplicate array 4 times so all items sit in ONE single flex track
