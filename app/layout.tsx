@@ -42,7 +42,7 @@ export default function RootLayout({
               "@context": "https://schema.org",
               "@graph": [
                 {
-                  "@type": "Physician",
+                  "@type": ["Physician", "Person"],
                   name: "Dr. Arun Shah",
                   url: "https://drarunshah.com.np",
                   image:
@@ -54,7 +54,7 @@ export default function RootLayout({
                     "https://twitter.com/drarunshah",
                   ],
                   worksFor: {
-                    "@type": "MedicalClinic",
+                    "@type": ["MedicalClinic", "Organization"],
                     name: "National Urology Center",
                     url: "https://drarunshah.com.np",
                     logo: "https://drarunshah.com.np/images/dr-arun-shah-urologist-janakpur.jpg",

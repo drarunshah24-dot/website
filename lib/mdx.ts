@@ -1,18 +1,7 @@
 import path from "path";
 import matter from "gray-matter";
 import { getCloudEnv } from "@/lib/env";
-
-function getFs(): typeof import("fs") | null {
-  try {
-    if (typeof process !== "undefined" && typeof process.cwd === "function") {
-      // Dynamic require avoids top-level import "node:fs" in Cloudflare worker.js
-      return require("fs");
-    }
-  } catch {
-    // Ignore in Edge environment
-  }
-  return null;
-}
+import fs from "fs";
 
 const contentDirectory = path.join(process.cwd(), "content");
 
@@ -26,11 +15,6 @@ function resolveFolderPath(folder: string): string | null {
   const checkDirs = [
     path.join(contentDirectory, folder),
     path.join(process.cwd(), "content", folder),
-    path.join(
-      process.cwd(),
-      ".open-next/server-functions/default/content",
-      folder,
-    ),
     path.resolve("./content", folder),
   ];
   if (folder === "blogs" || folder === "blog") {
@@ -39,22 +23,10 @@ function resolveFolderPath(folder: string): string | null {
       path.join(contentDirectory, "blogs"),
       path.join(process.cwd(), "content", "blog"),
       path.join(process.cwd(), "content", "blogs"),
-      path.join(
-        process.cwd(),
-        ".open-next/server-functions/default/content",
-        "blog",
-      ),
-      path.join(
-        process.cwd(),
-        ".open-next/server-functions/default/content",
-        "blogs",
-      ),
       path.resolve("./content/blog"),
       path.resolve("./content/blogs"),
     );
   }
-  const fs = getFs();
-  if (!fs) return null;
   for (const dir of checkDirs) {
     try {
       if (fs.existsSync(dir)) return dir;
@@ -66,8 +38,6 @@ function resolveFolderPath(folder: string): string | null {
 }
 
 export function getMdxFiles(folder: string): string[] {
-  const fs = getFs();
-  if (!fs) return [];
   const dirPath = resolveFolderPath(folder);
   if (!dirPath) {
     return [];
@@ -88,7 +58,9 @@ export async function getMdxBySlug<T>(
   slug: string,
 ): Promise<MdxFile<T> | null> {
   if (!slug) return null;
-  const cleanSlug = decodeURIComponent(slug).trim().replace(/\.mdx?$/, "");
+  const cleanSlug = decodeURIComponent(slug)
+    .trim()
+    .replace(/\.mdx?$/, "");
   if (!cleanSlug) return null;
 
   const token = await getCloudEnv("GITHUB_TOKEN");
@@ -98,8 +70,7 @@ export async function getMdxBySlug<T>(
 
   // Try local fs first (works during build time)
   try {
-    const fs = getFs();
-    if (fs && typeof process !== "undefined" && typeof process.cwd === "function") {
+    if (typeof process !== "undefined" && typeof process.cwd === "function") {
       const dirPath =
         resolveFolderPath(folder) || path.join(contentDirectory, folder);
       let fullPath = path.join(dirPath, `${cleanSlug}.mdx`);
@@ -188,8 +159,6 @@ export async function getMdxBySlug<T>(
   }
 
   try {
-    const fs = getFs();
-    if (!fs) return null;
     const dirPath =
       resolveFolderPath(folder) || path.join(contentDirectory, folder);
     let fullPath = path.join(dirPath, `${cleanSlug}.mdx`);

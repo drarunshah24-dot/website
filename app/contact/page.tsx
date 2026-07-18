@@ -181,7 +181,7 @@ export default function ContactPage() {
       <section className="h-[450px] w-full bg-slate-100 relative border-t border-slate-200">
         <iframe
           title="National Urology Center Janakpur Map"
-          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3554.498188177309!2d85.9224853!3d26.7317789!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39ec3f7e00000001%3A0x0!2zMjbCsDQzJzU0LjQiTiA4NcKwNTUnMjAuOSJF!5e0!3m2!1sen!2snp!4v1718000000000!5m2!1sen!2snp"
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3563.38788389595!2d85.9225219!3d26.7319955!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39ec410043ba06c5%3A0x6fcdf05f17d769a1!2sNational%20Urology%20Center!5e0!3m2!1sen!2snp!4v1718000000000!5m2!1sen!2snp"
           width="100%"
           height="100%"
           style={{ border: 0 }}
