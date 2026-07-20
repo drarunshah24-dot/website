@@ -217,7 +217,7 @@ export async function POST(req: Request) {
               }
             } catch {}
 
-            currentSettings.heroDoctorPhoto = rawUrl;
+            currentSettings.heroDoctorPhoto = `${publicUrl}?v=${Date.now()}`;
             const settingsBuffer = Buffer.from(
               JSON.stringify(currentSettings, null, 2),
               "utf8",

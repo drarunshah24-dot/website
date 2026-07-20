@@ -108,7 +108,7 @@ export default function ContentEditor({
       if (data.success) {
         setCurrentItem((prev) => ({
           ...prev,
-          image: data.rawUrl ? data.rawUrl : data.url ? data.url : "",
+          image: data.url ? data.url : data.rawUrl ? data.rawUrl : "",
         }));
         showToast("Image uploaded successfully!", "success");
       } else {

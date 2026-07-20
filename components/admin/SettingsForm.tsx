@@ -115,10 +115,10 @@ export function SettingsForm({
 
       if (data.success) {
         setHeroPhotoTimestamp(Date.now());
-        if (data.rawUrl) {
-          setHeroPhotoPreviewUrl(data.rawUrl);
-        } else if (data.url) {
+        if (data.url) {
           setHeroPhotoPreviewUrl(`${data.url}?_ts=${Date.now()}`);
+        } else if (data.rawUrl) {
+          setHeroPhotoPreviewUrl(data.rawUrl);
         }
         showToast(
           "Doctor Photo updated! Changes will be live in 1-2 mins.",
