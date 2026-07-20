@@ -22,6 +22,7 @@ interface BookFrontmatter {
   image?: string;
   description: string;
   date: string;
+  buyingLink?: string;
 }
 
 interface Props {
@@ -78,9 +79,6 @@ export default async function BookPage({ params }: Props) {
             <h1 className="text-3xl md:text-5xl font-heading font-bold text-slate-900 mb-6 leading-tight">
               {book.frontmatter.title}
             </h1>
-            <p className="text-lg md:text-xl text-slate-600 leading-relaxed max-w-3xl">
-              {book.frontmatter.description}
-            </p>
           </div>
         </div>
       </div>
@@ -119,6 +117,23 @@ export default async function BookPage({ params }: Props) {
                     </span>
                   </div>
                 )}
+                {book.frontmatter.buyingLink && (
+                  <div className="pt-2">
+                    <Button
+                      asChild
+                      className="w-full rounded-xl"
+                      variant="default"
+                    >
+                      <a
+                        href={book.frontmatter.buyingLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Purchase Book
+                      </a>
+                    </Button>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -134,6 +149,13 @@ export default async function BookPage({ params }: Props) {
                   providing essential insights for surgical practice.
                 </p>
               </div>
+
+              {book.frontmatter.description && (
+                <p className="text-slate-700 text-lg mb-8 leading-relaxed">
+                  {book.frontmatter.description}
+                </p>
+              )}
+
               <SafeMdx source={book.content} />
 
               <div className="mt-12 pt-8 border-t border-slate-100 flex flex-col sm:flex-row gap-4 justify-between items-center">

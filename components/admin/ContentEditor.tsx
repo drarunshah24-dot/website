@@ -300,6 +300,26 @@ export default function ContentEditor({
               </div>
             )}
 
+            {activeSection === "books" && (
+              <div>
+                <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-slate-500">
+                  Buying Link (URL)
+                </label>
+                <input
+                  type="url"
+                  value={currentItem.buyingLink || ""}
+                  onChange={(e) =>
+                    setCurrentItem({
+                      ...currentItem,
+                      buyingLink: e.target.value,
+                    })
+                  }
+                  placeholder="https://amazon.com/your-book"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                />
+              </div>
+            )}
+
             {activeSection !== "faq" && (
               <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
                 <label className="mb-3 block text-xs font-semibold uppercase tracking-wider text-slate-500">

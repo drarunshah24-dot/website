@@ -3,7 +3,11 @@ import matter from "gray-matter";
 import { getCloudEnv } from "@/lib/env";
 import fs from "fs";
 
-const contentDirectory = path.join(process.cwd(), "content");
+// Ensure Turbopack doesn't trace the entire project from process.cwd()
+const contentDirectory = path.join(
+  /*turbopackIgnore: true*/ process.cwd(),
+  "content",
+);
 
 export interface MdxFile<T> {
   slug: string;
@@ -14,15 +18,15 @@ export interface MdxFile<T> {
 function resolveFolderPath(folder: string): string | null {
   const checkDirs = [
     path.join(contentDirectory, folder),
-    path.join(process.cwd(), "content", folder),
+    path.join(/*turbopackIgnore: true*/ process.cwd(), "content", folder),
     path.resolve("./content", folder),
   ];
   if (folder === "blogs" || folder === "blog") {
     checkDirs.push(
       path.join(contentDirectory, "blog"),
       path.join(contentDirectory, "blogs"),
-      path.join(process.cwd(), "content", "blog"),
-      path.join(process.cwd(), "content", "blogs"),
+      path.join(/*turbopackIgnore: true*/ process.cwd(), "content", "blog"),
+      path.join(/*turbopackIgnore: true*/ process.cwd(), "content", "blogs"),
       path.resolve("./content/blog"),
       path.resolve("./content/blogs"),
     );

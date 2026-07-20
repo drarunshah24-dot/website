@@ -24,6 +24,7 @@ export interface ContentItem {
   description?: string;
   seoTitle?: string;
   seoDescription?: string;
+  buyingLink?: string;
   body: string;
 }
 
