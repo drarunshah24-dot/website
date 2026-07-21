@@ -29,6 +29,22 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const type = searchParams.get("type") || "blog"; // 'blog' | 'books' | 'gallery' | 'treatments' | 'conditions' | 'faq' | 'settings'
 
+    const ALLOWED_TYPES = [
+      "blog",
+      "books",
+      "gallery",
+      "treatments",
+      "conditions",
+      "faq",
+      "settings",
+    ];
+    if (!ALLOWED_TYPES.includes(type)) {
+      return NextResponse.json(
+        { success: false, error: "Invalid content type requested" },
+        { status: 400, headers: NO_CACHE_HEADERS },
+      );
+    }
+
     reqLogger.info(
       { event: "content_fetch_started", type },
       `Fetching content of type: ${type}`,
@@ -301,6 +317,23 @@ export async function POST(req: Request) {
       seoDescription,
       content,
     } = body;
+
+    const ALLOWED_TYPES = [
+      "blog",
+      "books",
+      "gallery",
+      "treatments",
+      "conditions",
+      "faq",
+      "settings",
+    ];
+    if (type && !ALLOWED_TYPES.includes(type)) {
+      return NextResponse.json(
+        { success: false, error: "Invalid content type specified" },
+        { status: 400, headers: NO_CACHE_HEADERS },
+      );
+    }
+
     reqLogger.info(
       { event: "content_save_started", type, slug },
       `Saving content: ${slug}`,
@@ -512,7 +545,32 @@ export async function DELETE(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const type = searchParams.get("type") || "blog";
-    const slug = searchParams.get("slug");
+    let slug = searchParams.get("slug");
+
+    const ALLOWED_TYPES = [
+      "blog",
+      "books",
+      "gallery",
+      "treatments",
+      "conditions",
+      "faq",
+      "settings",
+    ];
+    if (!ALLOWED_TYPES.includes(type)) {
+      return NextResponse.json(
+        { success: false, error: "Invalid content type specified" },
+        { status: 400, headers: NO_CACHE_HEADERS },
+      );
+    }
+
+    if (slug) {
+      // Prevent Path Traversal by cleaning slug
+      slug = slug
+        .toLowerCase()
+        .replace(/[^a-z0-9-]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+    }
+
     reqLogger.info(
       { event: "content_delete_started", type, slug },
       `Deleting content: ${slug}`,

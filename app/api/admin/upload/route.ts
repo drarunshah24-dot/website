@@ -32,7 +32,10 @@ export async function POST(req: Request) {
 
     // 1. Handle Client-Side Base64 JSON Payload (Cloudflare Pages / Serverless Architecture)
     if (contentType.includes("application/json")) {
-      const { filename, base64Content, commitMessage } = await req.json();
+      const bodyPayload = await req.json();
+      let filename = bodyPayload.filename;
+      const base64Content = bodyPayload.base64Content;
+      const commitMessage = bodyPayload.commitMessage;
 
       if (!filename || !base64Content) {
         return NextResponse.json(
@@ -43,6 +46,9 @@ export async function POST(req: Request) {
           { status: 400 },
         );
       }
+
+      // Mitigate Path Traversal by extracting only the base filename
+      filename = path.basename(filename);
 
       // Clean base64 string if it includes data URI scheme prefix (e.g., "data:image/jpeg;base64,...")
       const cleanBase64 = base64Content.includes(",")
@@ -320,7 +326,7 @@ export async function POST(req: Request) {
       );
     }
 
-    let fileName = targetName;
+    let fileName = targetName ? path.basename(targetName) : null;
     let targetDir = path.join(process.cwd(), "public", "images");
     let relativeGitHubPath = "public/images/";
 
@@ -333,7 +339,10 @@ export async function POST(req: Request) {
       relativeGitHubPath = "public/dr-arun-shah-urologist-janakpur.jpg";
     } else if (!fileName) {
       const timestamp = Date.now();
-      const cleanName = file.name.replace(/[^a-zA-Z0-9.-]/g, "-").toLowerCase();
+      const cleanName = path
+        .basename(file.name)
+        .replace(/[^a-zA-Z0-9.-]/g, "-")
+        .toLowerCase();
       fileName = `${timestamp}-${cleanName}`;
       relativeGitHubPath = `public/images/${fileName}`;
     } else {
