@@ -1,10 +1,9 @@
 ---
-title: "Advances in Laser Urology: How Modern Surgery Avoids Scars and Speeds Recovery"
-date: "2024-02-05"
+title: 'Advances in Laser Urology: How Modern Surgery Avoids Scars and Speeds Recovery'
+date: '2024-02-05'
 draft: false
-author: "Dr. Arun Shah"
-category: "Treatments"
-
+author: Dr. Arun Shah
+category: Treatments
 ---
 
 Historically, urological surgeries for kidney stones or prostate enlargement required large abdominal incisions, substantial blood loss, prolonged hospitalization, and painful postoperative recovery. Today, the field of urology has undergone a high-tech revolution.
@@ -48,3 +47,12 @@ For men suffering from severe urinary obstruction due to benign prostate enlarge
 Our mission at National Urology Center is to make state-of-the-art medical technology accessible and affordable to every community in Nepal. You no longer have to endure the physical stress and financial burden of medical tourism for complex urological procedures.
 
 *To consult with Dr. Arun Shah and discover if laser surgery is appropriate for your urological condition, book an appointment at our Janakpur clinic today.*
+
+**Testing**
+
+
+# hvdr
+---
+1 huijfd
+~~2 trjiji~~
+*3 hjn*
