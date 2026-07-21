@@ -48,11 +48,4 @@ Our mission at National Urology Center is to make state-of-the-art medical techn
 
 *To consult with Dr. Arun Shah and discover if laser surgery is appropriate for your urological condition, book an appointment at our Janakpur clinic today.*
 
-**Testing**
 
-
-# hvdr
----
-1 huijfd
-~~2 trjiji~~
-*3 hjn*
