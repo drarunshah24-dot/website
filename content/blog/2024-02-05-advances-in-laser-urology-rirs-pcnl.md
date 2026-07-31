@@ -1,9 +1,13 @@
 ---
-title: 'Advances in Laser Urology: How Modern Surgery Avoids Scars and Speeds Recovery'
+title: >-
+  Advances in Laser Urology through Thullium Laser: How Latest and Modern
+  Technology Avoids Scars and Speeds Recovery
 date: '2024-02-05'
 draft: false
 author: Dr. Arun Shah
 category: Treatments
+image: >-
+  https://raw.githubusercontent.com/drarunshah24-dot/website/main/public/images/1785508774356-screenshot-20260731-201622-gallery-1-.jpg?v=1785508761781
 ---
 
 Historically, urological surgeries for kidney stones or prostate enlargement required large abdominal incisions, substantial blood loss, prolonged hospitalization, and painful postoperative recovery. Today, the field of urology has undergone a high-tech revolution.
