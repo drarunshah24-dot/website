@@ -8,7 +8,7 @@ category: Treatments
 
 Historically, urological surgeries for kidney stones or prostate enlargement required large abdominal incisions, substantial blood loss, prolonged hospitalization, and painful postoperative recovery. Today, the field of urology has undergone a high-tech revolution.
 
-At National Urology Center in Janakpur, under the leadership of Gold Medalist Dr. Arun Shah, we bring state-of-the-art **Minimally Invasive Laser Urology** to the Madhesh Province—allowing patients to receive world-class surgical care without traveling to Kathmandu or India.
+At National Urology Center in Janakpur, under the leadership of Senior Urologist Dr. Arun Shah, we bring state-of-the-art **Minimally Invasive Laser Urology** to the Madhesh Province—allowing patients to receive world-class surgical care without traveling to Kathmandu or India.
 
 ## What is Laser Urology?
 
