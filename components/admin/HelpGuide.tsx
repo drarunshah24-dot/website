@@ -107,6 +107,29 @@ export function HelpGuide() {
               </ul>
             </div>
           </section>
+
+          {/* Section 4 */}
+          <section className="space-y-4">
+            <h3 className="flex items-center gap-2 text-xl font-bold text-slate-800">
+              <Layout className="h-5 w-5 text-blue-600" />
+              4. Editing About & Contact Pages
+            </h3>
+            <div className="rounded-2xl bg-slate-50 p-6 text-sm text-slate-700 leading-relaxed space-y-4">
+              <p>
+                <strong>About Page Editor:</strong> Click on the{" "}
+                <strong>&quot;About Page&quot;</strong> tab to edit your
+                biography, doctor portrait, key qualifications, education
+                degrees, areas of expertise, and medical philosophy quote. You
+                can easily add, edit, or remove qualifications and specialties.
+              </p>
+              <p>
+                <strong>Contact Page Editor:</strong> Click on the{" "}
+                <strong>&quot;Contact Page&quot;</strong> tab to change phone
+                numbers, clinic location, email address, everyday opening hours,
+                emergency care notices, and Google Maps embed link.
+              </p>
+            </div>
+          </section>
         </div>
       </div>
     </div>

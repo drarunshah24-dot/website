@@ -6,6 +6,8 @@ import { AdminNav, AdminSection } from "@/components/admin/AdminNav";
 import { LoginForm } from "@/components/admin/LoginForm";
 import { ContentList, ContentItem } from "@/components/admin/ContentList";
 import { SettingsForm } from "@/components/admin/SettingsForm";
+import { AboutForm } from "@/components/admin/AboutForm";
+import { ContactForm } from "@/components/admin/ContactForm";
 import { HelpGuide } from "@/components/admin/HelpGuide";
 import { ToastProvider } from "@/components/ui/toast";
 
@@ -104,7 +106,12 @@ export function AdminClient() {
     if (isAuthenticated) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       loadItems(activeSection);
-      if (activeSection !== "settings") {
+      if (
+        activeSection !== "settings" &&
+        activeSection !== "about" &&
+        activeSection !== "contact" &&
+        activeSection !== "help"
+      ) {
         setActiveTab("list");
       }
     }
@@ -197,6 +204,10 @@ export function AdminClient() {
               heroPhotoTimestamp={heroPhotoTimestamp}
               setHeroPhotoTimestamp={setHeroPhotoTimestamp}
             />
+          ) : activeSection === "about" ? (
+            <AboutForm />
+          ) : activeSection === "contact" ? (
+            <ContactForm />
           ) : activeSection === "help" ? (
             <HelpGuide />
           ) : activeTab === "list" ? (

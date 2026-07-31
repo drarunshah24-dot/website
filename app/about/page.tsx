@@ -1,17 +1,12 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { generateMetadata } from "@/lib/seo";
 import { buildPhysicianSchema } from "@/lib/schema";
 import Script from "next/script";
-import {
-  Award,
-  GraduationCap,
-  MapPin,
-  Building2,
-  Stethoscope,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
+import { Award, GraduationCap, Building2, Stethoscope } from "lucide-react";
 import Image from "next/image";
+import { getPageContent } from "@/lib/pageContent";
+import { AboutData } from "@/components/admin/AboutForm";
+
+export const dynamic = "force-dynamic";
 
 export const metadata = generateMetadata({
   title: "About Dr. Arun Shah | National Urology Center",
@@ -20,8 +15,83 @@ export const metadata = generateMetadata({
   type: "profile",
 });
 
-export default function AboutPage() {
+const DEFAULT_ABOUT_DATA: AboutData = {
+  hero: {
+    name: "Dr. Arun Shah",
+    title: "Senior Consultant Urologist",
+    image: "/dr-arun-shah-urologist-janakpur.jpg",
+    bioParagraphs: [
+      "Dr. Arun Shah is a distinguished urologist and a Gold Medalist in M.Ch Urology. With a commitment to bringing world-class urological care to Janakpur and the Madhesh Province, he specializes in advanced, minimally invasive laser surgeries.",
+      "His clinical philosophy centers around patient comfort, ethical medical practices, and utilizing the latest technological advancements to ensure faster recovery times and better outcomes.",
+    ],
+    stats: [
+      { icon: "Award", title: "Gold Medalist", subtitle: "M.Ch Urology" },
+      {
+        icon: "GraduationCap",
+        title: "NMC Registered",
+        subtitle: "Reg No: 15706",
+      },
+      {
+        icon: "Building2",
+        title: "Years of Experience",
+        subtitle: "10+ Years",
+      },
+    ],
+    appointmentUrl:
+      "https://wa.me/9779814834756?text=I%20would%20like%20to%20book%20an%20appointment.",
+  },
+  education: {
+    sectionTitle: "Education & Qualifications",
+    items: [
+      {
+        degree: "M.Ch in Urology",
+        badgeTag: "Super-Specialization",
+        highlightBadge: "University Gold Medalist",
+        institution: "Institute of Medicine (IOM), Tribhuvan University",
+        description:
+          "Highest tier surgical super-specialization focusing on advanced endourology, reconstructive urology, renal transplantation, and minimally invasive laser surgeries (RIRS, HoLEP, PCNL). Awarded the university gold medal for first-rank academic and surgical excellence.",
+      },
+      {
+        degree: "MS General Surgery",
+        badgeTag: "Postgraduate Degree",
+        highlightBadge: "Master of Surgery",
+        institution: "Tribhuvan University / Reputed Medical College",
+        description:
+          "Comprehensive surgical residency mastery encompassing complex abdominal procedures, trauma management, intensive critical care, and surgical oncology, establishing the rigorous foundation for urological super-specialization.",
+      },
+      {
+        degree: "MBBS",
+        badgeTag: "Foundation Degree",
+        highlightBadge: "Bachelor of Medicine & Surgery",
+        institution: "Recognized University Medical Institute",
+        description:
+          "Fundamental medical and surgical degree with clinical honors, extensive patient diagnostics training, and comprehensive medical science discipline.",
+      },
+    ],
+  },
+  expertise: {
+    sectionTitle: "Areas of Expertise",
+    items: [
+      "Laser Kidney Stone Surgery (RIRS, PCNL)",
+      "Prostate Laser Surgery (HoLEP, TURP)",
+      "Minimally Invasive Urology",
+      "Male Infertility & Sexual Health",
+      "Uro-Oncology (Kidney, Prostate, Bladder Cancer)",
+      "Reconstructive Urology (Urethroplasty)",
+      "Pediatric Urology",
+      "Female Pelvic Medicine & Reconstructive Surgery",
+    ],
+  },
+  philosophy: {
+    sectionTitle: "Patient-Centered Medical Philosophy",
+    quote:
+      "My goal is to provide world-class urological care that is accessible, empathetic, and strictly ethical. I believe in empowering patients through education, ensuring they understand their conditions and treatment options fully before making decisions. Anxiety should be relieved the moment a patient walks into my clinic.",
+  },
+};
+
+export default async function AboutPage() {
   const physicianSchema = buildPhysicianSchema();
+  const data = await getPageContent<AboutData>("about", DEFAULT_ABOUT_DATA);
 
   return (
     <>
@@ -37,80 +107,68 @@ export default function AboutPage() {
           <div className="grid md:grid-cols-12 gap-12 items-center">
             <div className="md:col-span-5 lg:col-span-4 flex items-center justify-center relative aspect-[4/5] w-full max-w-md mx-auto rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
               <Image
-                src="/dr-arun-shah-urologist-janakpur.jpg"
-                alt="Dr. Arun Shah - Best Urologist in Janakpur"
+                src={data.hero.image || "/dr-arun-shah-urologist-janakpur.jpg"}
+                alt={`${data.hero.name} - Best Urologist in Janakpur`}
                 fill
                 sizes="(max-width: 768px) 100vw, 400px"
                 className="object-cover"
+                unoptimized
               />
             </div>
 
             <div className="md:col-span-7 lg:col-span-8">
               <div className="mb-4">
                 <h1 className="text-4xl md:text-5xl font-heading font-bold text-slate-900 mb-2">
-                  Dr. Arun Shah
+                  {data.hero.name}
                 </h1>
                 <p className="text-xl text-primary font-medium">
-                  Senior Consultant Urologist
+                  {data.hero.title}
                 </p>
               </div>
 
               <div className="prose prose-slate max-w-none text-lg text-slate-700 leading-relaxed mb-8">
-                <p>
-                  Dr. Arun Shah is a distinguished urologist and a Gold Medalist
-                  in M.Ch Urology. With a commitment to bringing world-class
-                  urological care to Janakpur and the Madhesh Province, he
-                  specializes in advanced, minimally invasive laser surgeries.
-                </p>
-                <p>
-                  His clinical philosophy centers around patient comfort,
-                  ethical medical practices, and utilizing the latest
-                  technological advancements to ensure faster recovery times and
-                  better outcomes.
-                </p>
+                {data.hero.bioParagraphs.map((para, idx) => (
+                  <p key={idx}>{para}</p>
+                ))}
               </div>
 
               <div className="flex flex-wrap gap-6 mb-8">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">
-                    <Award className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-slate-900">
-                      Gold Medalist
-                    </p>
-                    <p className="text-xs text-slate-500">M.Ch Urology</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
-                    <GraduationCap className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-slate-900">
-                      NMC Registered
-                    </p>
-                    <p className="text-xs text-slate-500">Reg No: 15706</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-600">
-                    <Building2 className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-slate-900">
-                      Years of Experience
-                    </p>
-                    <p className="text-xs text-slate-500">10+ Years</p>
-                  </div>
-                </div>
+                {data.hero.stats.map((stat, idx) => {
+                  const colors = [
+                    "bg-emerald-100 text-emerald-600",
+                    "bg-blue-100 text-blue-600",
+                    "bg-purple-100 text-purple-600",
+                  ];
+                  const IconComp =
+                    idx === 0 ? Award : idx === 1 ? GraduationCap : Building2;
+                  return (
+                    <div key={idx} className="flex items-center gap-3">
+                      <div
+                        className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                          colors[idx % colors.length]
+                        }`}
+                      >
+                        <IconComp className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-slate-900">
+                          {stat.title}
+                        </p>
+                        <p className="text-xs text-slate-500">
+                          {stat.subtitle}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
 
               <div className="flex gap-4">
                 <a
-                  href="https://wa.me/9779814834756?text=I%20would%20like%20to%20book%20an%20appointment."
+                  href={
+                    data.hero.appointmentUrl ||
+                    "https://wa.me/9779814834756?text=I%20would%20like%20to%20book%20an%20appointment."
+                  }
                   target="_blank"
                   rel="noopener noreferrer"
                   className="bg-green-500 hover:bg-green-600 text-white font-semibold text-sm py-3 px-5 rounded-full shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all flex items-center gap-2"
@@ -139,131 +197,89 @@ export default function AboutPage() {
                 style={{ fontVariantLigatures: "none" }}
               >
                 <GraduationCap className="w-8 h-8 text-primary" />
-                Education & Qualifications
+                {data.education.sectionTitle}
               </h2>
 
               <div className="space-y-6">
-                {/* 1. M.Ch Urology */}
-                <div className="relative group bg-gradient-to-br from-white via-primary/[0.02] to-primary/[0.06] p-6 sm:p-7 rounded-3xl border border-primary/20 shadow-lg hover:shadow-2xl hover:border-primary/40 transition-all duration-300">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pb-4 border-b border-slate-100">
-                    <div className="flex items-center gap-4">
-                      <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-blue-700 text-white flex items-center justify-center shadow-md shadow-primary/20 shrink-0 group-hover:scale-105 transition-transform">
-                        <Award className="w-7 h-7" />
+                {data.education.items.map((item, idx) => (
+                  <div
+                    key={idx}
+                    className={`relative group p-6 sm:p-7 rounded-3xl border transition-all duration-300 ${
+                      idx === 0
+                        ? "bg-gradient-to-br from-white via-primary/[0.02] to-primary/[0.06] border-primary/20 shadow-lg hover:shadow-2xl hover:border-primary/40"
+                        : "bg-white border-slate-200/80 shadow-md hover:shadow-xl hover:border-primary/30"
+                    }`}
+                  >
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pb-4 border-b border-slate-100">
+                      <div className="flex items-center gap-4">
+                        <div
+                          className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 ${
+                            idx === 0
+                              ? "bg-gradient-to-br from-primary to-blue-700 text-white shadow-md shadow-primary/20 group-hover:scale-105 transition-transform"
+                              : "bg-slate-100 text-slate-700 group-hover:bg-primary/10 group-hover:text-primary transition-colors"
+                          }`}
+                        >
+                          {idx === 0 ? (
+                            <Award className="w-7 h-7" />
+                          ) : idx === 1 ? (
+                            <GraduationCap className="w-7 h-7" />
+                          ) : (
+                            <Stethoscope className="w-7 h-7" />
+                          )}
+                        </div>
+                        <div>
+                          {item.badgeTag && (
+                            <span
+                              className={`text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full ${
+                                idx === 0
+                                  ? "text-primary bg-primary/10"
+                                  : "text-slate-500 bg-slate-100"
+                              }`}
+                            >
+                              {item.badgeTag}
+                            </span>
+                          )}
+                          <h3 className="font-heading font-bold text-slate-900 text-xl sm:text-2xl mt-1.5">
+                            {item.degree}
+                          </h3>
+                        </div>
                       </div>
-                      <div>
-                        <span className="text-xs font-bold uppercase tracking-wider text-primary bg-primary/10 px-3 py-1 rounded-full">
-                          Super-Specialization
-                        </span>
-                        <h3 className="font-heading font-bold text-slate-900 text-xl sm:text-2xl mt-1.5">
-                          M.Ch in Urology
-                        </h3>
-                      </div>
+                      {item.highlightBadge && (
+                        <div
+                          className={`inline-flex items-center self-start sm:self-center gap-1.5 px-3.5 py-1.5 rounded-full font-bold text-xs shadow-sm ${
+                            idx === 0
+                              ? "bg-amber-50 border border-amber-200/80 text-amber-800"
+                              : "bg-slate-50 border border-slate-200 text-slate-600"
+                          }`}
+                        >
+                          {idx === 0 && (
+                            <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+                          )}
+                          {item.highlightBadge}
+                        </div>
+                      )}
                     </div>
-                    <div className="inline-flex items-center self-start sm:self-center gap-1.5 px-3.5 py-1.5 rounded-full bg-amber-50 border border-amber-200/80 text-amber-800 font-bold text-xs shadow-sm">
-                      <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-                      University Gold Medalist
+                    <div className="space-y-2">
+                      <p className="font-semibold text-slate-800 text-base flex items-center gap-2">
+                        <Building2 className="w-4 h-4 text-primary shrink-0" />
+                        {item.institution}
+                      </p>
+                      <p className="text-slate-600 text-sm leading-relaxed">
+                        {item.description}
+                      </p>
                     </div>
                   </div>
-                  <div className="space-y-2">
-                    <p className="font-semibold text-slate-800 text-base flex items-center gap-2">
-                      <Building2 className="w-4 h-4 text-primary shrink-0" />
-                      Institute of Medicine (IOM), Tribhuvan University
-                    </p>
-                    <p className="text-slate-600 text-sm leading-relaxed">
-                      Highest tier surgical super-specialization focusing on
-                      advanced endourology, reconstructive urology, renal
-                      transplantation, and minimally invasive laser surgeries
-                      (RIRS, HoLEP, PCNL). Awarded the university gold medal for
-                      first-rank academic and surgical excellence.
-                    </p>
-                  </div>
-                </div>
-
-                {/* 2. MS General Surgery */}
-                <div className="relative group bg-white p-6 sm:p-7 rounded-3xl border border-slate-200/80 shadow-md hover:shadow-xl hover:border-primary/30 transition-all duration-300">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pb-4 border-b border-slate-100">
-                    <div className="flex items-center gap-4">
-                      <div className="w-14 h-14 rounded-2xl bg-slate-100 text-slate-700 group-hover:bg-primary/10 group-hover:text-primary flex items-center justify-center transition-colors shrink-0">
-                        <GraduationCap className="w-7 h-7" />
-                      </div>
-                      <div>
-                        <span className="text-xs font-bold uppercase tracking-wider text-slate-500 bg-slate-100 px-3 py-1 rounded-full">
-                          Postgraduate Degree
-                        </span>
-                        <h3 className="font-heading font-bold text-slate-900 text-xl sm:text-2xl mt-1.5">
-                          MS General Surgery
-                        </h3>
-                      </div>
-                    </div>
-                    <span className="text-xs font-semibold text-slate-500 self-start sm:self-center bg-slate-50 px-3 py-1 rounded-full border border-slate-200">
-                      Master of Surgery
-                    </span>
-                  </div>
-                  <div className="space-y-2">
-                    <p className="font-semibold text-slate-800 text-base flex items-center gap-2">
-                      <Building2 className="w-4 h-4 text-primary shrink-0" />
-                      Tribhuvan University / Reputed Medical College
-                    </p>
-                    <p className="text-slate-600 text-sm leading-relaxed">
-                      Comprehensive surgical residency mastery encompassing
-                      complex abdominal procedures, trauma management, intensive
-                      critical care, and surgical oncology, establishing the
-                      rigorous foundation for urological super-specialization.
-                    </p>
-                  </div>
-                </div>
-
-                {/* 3. MBBS */}
-                <div className="relative group bg-white p-6 sm:p-7 rounded-3xl border border-slate-200/80 shadow-md hover:shadow-xl hover:border-primary/30 transition-all duration-300">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pb-4 border-b border-slate-100">
-                    <div className="flex items-center gap-4">
-                      <div className="w-14 h-14 rounded-2xl bg-slate-100 text-slate-700 group-hover:bg-primary/10 group-hover:text-primary flex items-center justify-center transition-colors shrink-0">
-                        <Stethoscope className="w-7 h-7" />
-                      </div>
-                      <div>
-                        <span className="text-xs font-bold uppercase tracking-wider text-slate-500 bg-slate-100 px-3 py-1 rounded-full">
-                          Foundation Degree
-                        </span>
-                        <h3 className="font-heading font-bold text-slate-900 text-xl sm:text-2xl mt-1.5">
-                          MBBS
-                        </h3>
-                      </div>
-                    </div>
-                    <span className="text-xs font-semibold text-slate-500 self-start sm:self-center bg-slate-50 px-3 py-1 rounded-full border border-slate-200">
-                      Bachelor of Medicine & Surgery
-                    </span>
-                  </div>
-                  <div className="space-y-2">
-                    <p className="font-semibold text-slate-800 text-base flex items-center gap-2">
-                      <Building2 className="w-4 h-4 text-primary shrink-0" />
-                      Recognized University Medical Institute
-                    </p>
-                    <p className="text-slate-600 text-sm leading-relaxed">
-                      Fundamental medical and surgical degree with clinical
-                      honors, extensive patient diagnostics training, and
-                      comprehensive medical science discipline.
-                    </p>
-                  </div>
-                </div>
+                ))}
               </div>
             </div>
 
             <div>
               <h2 className="text-3xl font-heading font-bold text-slate-900 mb-8 flex items-center gap-3">
                 <Stethoscope className="w-8 h-8 text-primary" />
-                Areas of Expertise
+                {data.expertise.sectionTitle}
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {[
-                  "Laser Kidney Stone Surgery (RIRS, PCNL)",
-                  "Prostate Laser Surgery (HoLEP, TURP)",
-                  "Minimally Invasive Urology",
-                  "Male Infertility & Sexual Health",
-                  "Uro-Oncology (Kidney, Prostate, Bladder Cancer)",
-                  "Reconstructive Urology (Urethroplasty)",
-                  "Pediatric Urology",
-                  "Female Pelvic Medicine & Reconstructive Surgery",
-                ].map((specialty, index) => (
+                {data.expertise.items.map((specialty, index) => (
                   <div
                     key={index}
                     className="flex items-start gap-3 p-4 bg-slate-50 rounded-xl border border-slate-100"
@@ -285,15 +301,10 @@ export default function AboutPage() {
         <div className="container mx-auto px-4 md:px-6 max-w-4xl">
           <Stethoscope className="w-12 h-12 mx-auto mb-6 opacity-80" />
           <h2 className="text-3xl md:text-4xl font-heading font-bold mb-6">
-            Patient-Centered Medical Philosophy
+            {data.philosophy.sectionTitle}
           </h2>
           <p className="text-lg md:text-xl leading-relaxed opacity-90 italic">
-            &quot;My goal is to provide world-class urological care that is
-            accessible, empathetic, and strictly ethical. I believe in
-            empowering patients through education, ensuring they understand
-            their conditions and treatment options fully before making
-            decisions. Anxiety should be relieved the moment a patient walks
-            into my clinic.&quot;
+            &quot;{data.philosophy.quote}&quot;
           </p>
         </div>
       </section>

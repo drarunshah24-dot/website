@@ -37,6 +37,8 @@ export async function GET(req: Request) {
       "conditions",
       "faq",
       "settings",
+      "about",
+      "contact",
     ];
     if (!ALLOWED_TYPES.includes(type)) {
       return NextResponse.json(
@@ -121,6 +123,59 @@ export async function GET(req: Request) {
           { headers: NO_CACHE_HEADERS },
         );
       }
+    }
+
+    if (type === "about" || type === "contact") {
+      const pageFile = path.join(contentDir, `${type}.json`);
+      if (token) {
+        try {
+          const ghRes = await fetch(
+            `https://api.github.com/repos/${owner}/${repo}/contents/content/${type}.json?ref=${branch}&_ts=${Date.now()}`,
+            {
+              cache: "no-store",
+              headers: {
+                Authorization: `Bearer ${token}`,
+                Accept: "application/vnd.github.v3+json",
+                "User-Agent": "National-Urology-Center-Admin",
+                "Cache-Control": "no-cache, no-store, must-revalidate",
+              },
+            },
+          );
+          if (ghRes.ok) {
+            const ghJson = (await ghRes.json().catch(() => ({}))) as {
+              content?: string;
+            };
+            if (ghJson.content) {
+              const decoded = Buffer.from(ghJson.content, "base64").toString(
+                "utf8",
+              );
+              const data = JSON.parse(decoded);
+              return NextResponse.json(
+                { success: true, data },
+                { headers: NO_CACHE_HEADERS },
+              );
+            }
+          }
+        } catch (e) {
+          reqLogger.warn(
+            { error: e instanceof Error ? e.message : String(e) },
+            `Could not fetch ${type}.json from GitHub API, falling back to local fs`,
+          );
+        }
+      }
+      try {
+        if (fs.existsSync(pageFile)) {
+          const data = JSON.parse(fs.readFileSync(pageFile, "utf8"));
+          return NextResponse.json(
+            { success: true, data },
+            { headers: NO_CACHE_HEADERS },
+          );
+        }
+      } catch {}
+      return NextResponse.json(
+        { success: true, data: null },
+        { headers: NO_CACHE_HEADERS },
+      );
     }
 
     if (token) {
@@ -326,6 +381,8 @@ export async function POST(req: Request) {
       "conditions",
       "faq",
       "settings",
+      "about",
+      "contact",
     ];
     if (type && !ALLOWED_TYPES.includes(type)) {
       return NextResponse.json(
@@ -376,6 +433,53 @@ export async function POST(req: Request) {
       }
 
       revalidatePath("/", "layout");
+      revalidatePath("/admin", "layout");
+      return NextResponse.json(
+        { success: true },
+        { headers: NO_CACHE_HEADERS },
+      );
+    }
+
+    if (type === "about" || type === "contact") {
+      const payloadData = body.data || body[type];
+      const jsonContent = JSON.stringify(payloadData, null, 2);
+      const targetFile = path.join(contentDir, `${type}.json`);
+      let localSuccess = false;
+      try {
+        if (!fs.existsSync(contentDir))
+          fs.mkdirSync(contentDir, { recursive: true });
+        fs.writeFileSync(targetFile, jsonContent, "utf8");
+        localSuccess = true;
+      } catch {
+        localSuccess = false;
+      }
+
+      const token = await getCloudEnv("GITHUB_TOKEN");
+      if (token) {
+        const ghRes = await saveToGitHub(
+          `content/${type}.json`,
+          jsonContent,
+          `Update ${type}.json via Admin Portal`,
+        );
+        if (!ghRes.success && !localSuccess) {
+          return NextResponse.json(
+            { success: false, error: "GitHub commit failed: " + ghRes.error },
+            { status: 400, headers: NO_CACHE_HEADERS },
+          );
+        }
+      } else if (!localSuccess) {
+        return NextResponse.json(
+          {
+            success: false,
+            error:
+              "Filesystem is read-only. Please add GITHUB_TOKEN to your Environment Variables to save permanently.",
+          },
+          { status: 400, headers: NO_CACHE_HEADERS },
+        );
+      }
+
+      revalidatePath("/", "layout");
+      revalidatePath(`/${type}`, "layout");
       revalidatePath("/admin", "layout");
       return NextResponse.json(
         { success: true },
@@ -555,6 +659,8 @@ export async function DELETE(req: Request) {
       "conditions",
       "faq",
       "settings",
+      "about",
+      "contact",
     ];
     if (!ALLOWED_TYPES.includes(type)) {
       return NextResponse.json(

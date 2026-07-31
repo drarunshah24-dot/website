@@ -9,6 +9,7 @@ import {
   CardContent,
 } from "@/components/ui/card";
 import { ArrowRight, Stethoscope } from "lucide-react";
+import Image from "next/image";
 
 export const dynamic = "force-static";
 
@@ -58,7 +59,19 @@ export default async function ConditionsHubPage() {
                   href={`/conditions/${condition.slug}`}
                   className="block h-full"
                 >
-                  <Card className="border-slate-100 shadow-sm hover:shadow-md transition-all group cursor-pointer h-full flex flex-col hover:-translate-y-1">
+                  <Card className="border-slate-100 shadow-sm hover:shadow-md transition-all group cursor-pointer h-full flex flex-col hover:-translate-y-1 overflow-hidden">
+                    {condition.frontmatter.image && (
+                      <div className="aspect-[16/9] w-full relative bg-slate-100 border-b border-slate-100 overflow-hidden">
+                        <Image
+                          src={condition.frontmatter.image}
+                          alt={condition.frontmatter.title}
+                          fill
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                          className="object-cover group-hover:scale-105 transition-transform duration-300"
+                          unoptimized
+                        />
+                      </div>
+                    )}
                     <CardHeader className="flex-1">
                       <div className="w-12 h-12 bg-primary/10 text-primary rounded-xl flex items-center justify-center mb-4 group-hover:bg-primary group-hover:text-white transition-colors">
                         <Stethoscope className="w-6 h-6" />

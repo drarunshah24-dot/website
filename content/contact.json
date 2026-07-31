@@ -1,0 +1,48 @@
+{
+  "hero": {
+    "badge": "Janakpurdham, Nepal",
+    "title": "Contact Us",
+    "description": "We are here to answer your questions and provide the expert urological care you need. Reach out to us via phone, email, or by visiting our clinic near Dashrath Pond in Janakpur.",
+    "bgImage": "/images/janaki-mandir.jpg"
+  },
+  "location": {
+    "title": "Location",
+    "clinicName": "National Urology Center",
+    "addressLine1": "Near Dashrath Pond, Janakpurdham-06",
+    "addressLine2": "Dhanusha, Madhesh Province, Nepal"
+  },
+  "phones": {
+    "title": "Phone Numbers",
+    "description": "Call us for appointments or emergency assistance.",
+    "numbers": [
+      {
+        "label": "Appointments & WhatsApp",
+        "number": "+977 97444-27743",
+        "link": "tel:+9779744427743"
+      },
+      {
+        "label": "Emergency Care",
+        "number": "+977 98148-34756",
+        "link": "tel:+9779814834756"
+      }
+    ]
+  },
+  "email": {
+    "title": "Email",
+    "description": "Send us your medical reports or general inquiries.",
+    "address": "drarunshah24@gmail.com"
+  },
+  "hours": {
+    "title": "Opening Hours",
+    "days": "Sunday – Saturday (Everyday)",
+    "time": "09:00 AM – 05:00 PM",
+    "emergencyNotice": "24/7 Emergency Care Available"
+  },
+  "appointment": {
+    "buttonText": "Book an Appointment Now",
+    "link": "https://wa.me/9779744427743?text=I%20would%20like%20to%20book%20an%20appointment."
+  },
+  "map": {
+    "iframeSrc": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3563.38788389595!2d85.9225219!3d26.7319955!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39ec410043ba06c5%3A0x6fcdf05f17d769a1!2sNational%20Urology%20Center!5e0!3m2!1sen!2snp!4v1718000000000!5m2!1sen!2snp"
+  }
+}
