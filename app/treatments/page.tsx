@@ -9,6 +9,7 @@ import {
   CardContent,
 } from "@/components/ui/card";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
+import Image from "next/image";
 
 export const dynamic = "force-static";
 
@@ -58,7 +59,19 @@ export default async function TreatmentsHubPage() {
                   href={`/treatments/${treatment.slug}`}
                   className="block h-full"
                 >
-                  <Card className="border-slate-200 shadow-sm hover:shadow-lg transition-all group cursor-pointer bg-white h-full flex flex-col hover:-translate-y-1">
+                  <Card className="border-slate-200 shadow-sm hover:shadow-lg transition-all group cursor-pointer bg-white h-full flex flex-col hover:-translate-y-1 overflow-hidden">
+                    {treatment.frontmatter.image && (
+                      <div className="aspect-[16/9] w-full relative bg-slate-100 border-b border-slate-100 overflow-hidden">
+                        <Image
+                          src={treatment.frontmatter.image}
+                          alt={treatment.frontmatter.title}
+                          fill
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                          className="object-cover group-hover:scale-105 transition-transform duration-300"
+                          unoptimized
+                        />
+                      </div>
+                    )}
                     <CardHeader className="flex-1">
                       <div className="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                         <CheckCircle2 className="w-6 h-6" />

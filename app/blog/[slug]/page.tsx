@@ -121,6 +121,7 @@ export default async function BlogPostPage({ params }: Props) {
                 fill
                 sizes="(max-width: 1200px) 100vw, 800px"
                 className="object-cover"
+                unoptimized
               />
             </div>
 

@@ -13,6 +13,8 @@ import {
   Building2,
   Settings,
   LifeBuoy,
+  UserCheck,
+  Phone,
 } from "lucide-react";
 
 export type AdminSection =
@@ -22,6 +24,8 @@ export type AdminSection =
   | "faq"
   | "books"
   | "gallery"
+  | "about"
+  | "contact"
   | "settings"
   | "help";
 
@@ -43,6 +47,8 @@ export function AdminNav({
     { id: "faq", icon: HelpCircle, label: "FAQ" },
     { id: "books", icon: BookOpen, label: "Books & Publications" },
     { id: "gallery", icon: Building2, label: "Facilities" },
+    { id: "about", icon: UserCheck, label: "About Page" },
+    { id: "contact", icon: Phone, label: "Contact Page" },
     { id: "settings", icon: Settings, label: "Homepage Settings" },
     { id: "help", icon: LifeBuoy, label: "Help & Guides" },
   ] as const;

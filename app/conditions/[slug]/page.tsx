@@ -5,6 +5,7 @@ import { SafeMdx } from "@/components/SafeMdx";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Calendar, Phone, ArrowLeft } from "lucide-react";
+import Image from "next/image";
 
 export const dynamic = "force-dynamic";
 export const dynamicParams = true;
@@ -81,6 +82,18 @@ export default async function ConditionPage({ params }: Props) {
         <div className="grid lg:grid-cols-12 gap-12">
           {/* Main Content (MDX) */}
           <div className="lg:col-span-8">
+            {condition.frontmatter.image && (
+              <div className="aspect-[16/9] mb-10 rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 shadow-md relative">
+                <Image
+                  src={condition.frontmatter.image}
+                  alt={condition.frontmatter.title}
+                  fill
+                  sizes="(max-width: 1200px) 100vw, 800px"
+                  className="object-cover"
+                  unoptimized
+                />
+              </div>
+            )}
             <article className="prose prose-slate prose-lg max-w-none prose-headings:font-heading prose-headings:font-bold prose-h2:text-3xl prose-h3:text-2xl prose-a:text-primary">
               <SafeMdx source={condition.content} />
             </article>

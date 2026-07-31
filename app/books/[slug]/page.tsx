@@ -99,6 +99,7 @@ export default async function BookPage({ params }: Props) {
                   fill
                   sizes="(max-width: 768px) 100vw, 400px"
                   className="object-cover"
+                  unoptimized
                 />
               </div>
               <div className="space-y-3 text-sm border-t border-slate-200/60 pt-4">
