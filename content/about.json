@@ -4,7 +4,7 @@
     "title": "Senior Consultant Urologist",
     "image": "/dr-arun-shah-urologist-janakpur.jpg",
     "bioParagraphs": [
-      "Dr. Arun Shah is a distinguished urologist and a Gold Medalist in M.Ch Urology. With a commitment to bringing world-class urological care to Janakpur and the Madhesh Province, he specializes in advanced, minimally invasive laser surgeries.",
+      "Dr. Arun Shah is M.Ch in Urology and distinguished urologist working in Janakpur. With a commitment to bringing world-class urological care to Janakpur and the Madhesh Province, he specializes in advanced, minimally invasive laser surgeries and advanced laparoscopic surgeries",
       "His clinical philosophy centers around patient comfort, ethical medical practices, and utilizing the latest technological advancements to ensure faster recovery times and better outcomes."
     ],
     "stats": [
@@ -33,36 +33,37 @@
         "degree": "M.Ch in Urology",
         "badgeTag": "Super-Specialization",
         "highlightBadge": "University Gold Medalist",
-        "institution": "Institute of Medicine (IOM), Tribhuvan University",
-        "description": "Highest tier surgical super-specialization focusing on advanced endourology, reconstructive urology, renal transplantation, and minimally invasive laser surgeries (RIRS, HoLEP, PCNL). Awarded the university gold medal for first-rank academic and surgical excellence."
+        "institution": "KUSMS, Kathmandu University",
+        "description": "Highest tier surgical super-specialization focusing on advanced endourology, reconstructive urology, renal transplantation, and minimally invasive laser surgeries (RIRS, HoLEP, PCNL). Awarded the university first-rank in MCh Urology for academic and surgical excellence."
       },
       {
         "degree": "MS General Surgery",
         "badgeTag": "Postgraduate Degree",
-        "highlightBadge": "Master of Surgery",
-        "institution": "Tribhuvan University / Reputed Medical College",
+        "highlightBadge": "Master of General Surgery",
+        "institution": "NGMC, Kathmandu University",
         "description": "Comprehensive surgical residency mastery encompassing complex abdominal procedures, trauma management, intensive critical care, and surgical oncology, establishing the rigorous foundation for urological super-specialization."
       },
       {
         "degree": "MBBS",
         "badgeTag": "Foundation Degree",
         "highlightBadge": "Bachelor of Medicine & Surgery",
-        "institution": "Recognized University Medical Institute",
+        "institution": "NGMC, Kathmandu University",
         "description": "Fundamental medical and surgical degree with clinical honors, extensive patient diagnostics training, and comprehensive medical science discipline."
       }
     ]
   },
   "expertise": {
-    "sectionTitle": "Areas of Expertise",
+    "sectionTitle": "AREAS OF EXPERTISE",
     "items": [
-      "Laser Kidney Stone Surgery (RIRS, PCNL)",
+      "Laser Kidney Stone Surgery (RIRS, PCNL, URSL))",
       "Prostate Laser Surgery (HoLEP, TURP)",
       "Minimally Invasive Urology",
       "Male Infertility & Sexual Health",
       "Uro-Oncology (Kidney, Prostate, Bladder Cancer)",
       "Reconstructive Urology (Urethroplasty)",
       "Pediatric Urology",
-      "Female Pelvic Medicine & Reconstructive Surgery"
+      "Female Pelvic Medicine & Reconstructive Surgery",
+      "Advanced laparoscopic surgery"
     ]
   },
   "philosophy": {
