@@ -1,67 +1,44 @@
-# Action Plan
+# 🎯 ACTION PLAN — SEO Roadmap for Dr. Arun Shah Website
 
-- URL: `https://drarunshah.com.np`
-- Overall score: `74/100`
+**Website**: [https://drarunshah.com.np](https://drarunshah.com.np)  
+**Goal**: Maintain Top 1 Ranking for Urologists in Janakpur & Madhesh Province, Nepal
 
-## Priority Fixes
+---
 
-1. **No Organization/Person entity found in JSON-LD.**
-   - Priority: `Critical`
-   - Area: `Schema`
-   - Evidence: See audit output.
-   - Fix: Add Organization or Person schema with name, url, logo, and sameAs properties.
-2. **1 orphan page(s) with zero inbound internal links.**
-   - Priority: `Critical`
-   - Area: `link_profile`
-   - Evidence: See audit output.
-   - Fix: Add internal links from relevant content pages to these orphan pages.
-3. **1 security headers missing**
-   - Priority: `Warning`
-   - Area: `environment`
-   - Evidence: Missing headers reduce trust and can expose the site to browser/security risks.
-   - Fix: Set security headers in `next.config.js` `headers()` or at your edge/CDN.
-4. **1 broken links detected**
-   - Priority: `Warning`
-   - Area: `environment`
-   - Evidence: Broken internal links hurt crawl flow and user trust.
-   - Fix: Fix links in route components and content source files; validate with link checks in CI.
-5. **Content readability is difficult**
-   - Priority: `Warning`
-   - Area: `environment`
-   - Evidence: Long, complex text can reduce engagement and comprehension.
-   - Fix: Rewrite key sections with shorter sentences (15-20 words), shorter paragraphs (2-4 sentences), and clearer subheadings.
-6. **No Wikidata entry found for 'National Urology Center'.**
-   - Priority: `Info`
-   - Area: `Wikidata`
-   - Evidence: See audit output.
-   - Fix: If the entity meets Wikidata notability guidelines, create or improve an item with accurate third-party references. Do not create one solely for SEO.
-7. **No Wikipedia article found for 'National Urology Center'.**
-   - Priority: `Info`
-   - Area: `Wikipedia`
-   - Evidence: See audit output.
-   - Fix: Only pursue Wikipedia if the entity meets independent notability standards. Otherwise, strengthen official schema, sameAs profiles, citations, and About/Contact signals.
-8. **Performance measurement incomplete**
-   - Priority: `Info`
-   - Area: `environment`
-   - Evidence: PageSpeed API returned an error, so CWV recommendations are less reliable.
-   - Fix: Set `PAGESPEED_API_KEY` in your environment or `.env` file (see `.env.example`), then rerun. The CLI also accepts `--api-key`. Prioritize LCP/INP/CLS fixes from that output.
-9. **Missing sameAs link to Wikipedia (Primary KG signal).**
-   - Priority: `Info`
-   - Area: `sameAs`
-   - Evidence: See audit output.
-   - Fix: Add the existing official 'wikipedia.org' URL to sameAs; do not create this profile solely for SEO.
-10. **Missing sameAs link to Wikidata (Primary KG signal).**
-   - Priority: `Info`
-   - Area: `sameAs`
-   - Evidence: See audit output.
-   - Fix: Add the existing official 'wikidata.org' URL to sameAs; do not create this profile solely for SEO.
-11. **Missing sameAs link to LinkedIn (Strong KG signal).**
-   - Priority: `Info`
-   - Area: `sameAs`
-   - Evidence: See audit output.
-   - Fix: Add 'linkedin.com' profile URL to sameAs array in your entity schema.
-12. **Missing sameAs link to Twitter/X (Strong KG signal).**
-   - Priority: `Info`
-   - Area: `sameAs`
-   - Evidence: See audit output.
-   - Fix: Add 'x.com' profile URL to sameAs array in your entity schema.
+## 📌 Phase 1: Immediate Launch Checklist (Done)
+- [x] **Verify Dynamic XML Sitemap (`/sitemap.xml`)**: Ensures Google indexes `/about`, `/contact`, `/treatments`, `/conditions`, `/blog`, and `/books`.
+- [x] **Verify Robots.txt (`/robots.txt`)**: Allows Googlebot, Bingbot, and AI Search Crawlers (`GPTBot`, `ClaudeBot`, `PerplexityBot`).
+- [x] **Verify Schema.org Markup**: `Physician`, `MedicalClinic`, and `Article` JSON-LD schemas active.
+- [x] **Verify AI Search Card (`/llms.txt`)**: Complete machine-readable profile for Answer Engines (Perplexity, ChatGPT Search, Claude).
+
+---
+
+## 🚀 Phase 2: Ongoing Growth & Local SEO Steps (For Dr. Arun Shah)
+
+### 1. Google Business Profile (GBP) Synchronization
+- **Action**: Ensure the Google Business Profile name matches **"National Urology Center - Dr. Arun Shah"**.
+- **NAP Consistency**: Verify Address (*Near Dashrath Pond, Janakpurdham-06*), Phone (*+977-9814834756* / *+977-9744427743*), and Website URL (*https://drarunshah.com.np*) match the exact text on the Contact Page.
+
+### 2. High-Intent Patient Blog Posts (Monthly)
+- **Action**: Write 1-2 short patient awareness articles each month using the Admin Panel (`/admin`).
+- **Recommended Topics**:
+  - *"Laser Surgery for Kidney Stones (RIRS & HoLEP) in Janakpur"*
+  - *"Early Warning Signs of Enlarged Prostate (BPH) and Modern Treatments"*
+  - *"Preventing Recurrent UTIs & Kidney Stones in Hot Climates"*
+
+### 3. Image Optimization Best Practice
+- **Action**: When uploading photos via the Admin Panel, use standard JPEG or WEBP formats under 1MB for fastest loading speeds.
+
+---
+
+## 🛠️ Verification Commands
+
+```bash
+# Verify build & SEO page generation
+npm run build
+
+# Test sitemap & robots locally
+curl http://localhost:3000/sitemap.xml
+curl http://localhost:3000/robots.txt
+curl http://localhost:3000/llms.txt
+```
