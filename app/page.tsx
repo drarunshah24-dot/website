@@ -67,11 +67,18 @@ interface ConditionFrontmatter {
   image?: string;
 }
 
+interface TreatmentFrontmatter {
+  title: string;
+  summary: string;
+  image?: string;
+}
+
 export default async function Home() {
   const clinicSchema = buildMedicalClinicSchema();
   const physicianSchema = buildPhysicianSchema();
   const books = await getAllMdx<BookFrontmatter>("books");
   const conditions = await getAllMdx<ConditionFrontmatter>("conditions");
+  const treatments = await getAllMdx<TreatmentFrontmatter>("treatments");
   const galleryRaw = await getAllMdx<GalleryFrontmatter>("gallery");
   const galleryItems = galleryRaw.map((g) => ({
     title: g.frontmatter.title || "Facility Photo",
@@ -219,12 +226,10 @@ export default async function Home() {
           <ScrollReveal>
             <div className="text-center max-w-3xl mx-auto mb-16">
               <h2 className="text-3xl md:text-4xl font-heading font-bold text-slate-900 mb-4">
-                Advanced Urological Treatments
+                Common Urological Conditions
               </h2>
               <p className="text-lg text-slate-600">
-                We provide state-of-the-art diagnostic and surgical solutions
-                for all urological conditions using minimally invasive
-                techniques.
+                Explore comprehensive information on various urological conditions to better understand your symptoms.
               </p>
             </div>
           </ScrollReveal>
@@ -271,7 +276,7 @@ export default async function Home() {
             ))}
           </div>
 
-          <div className="mt-12 text-center flex flex-wrap justify-center gap-4">
+          <div className="mt-12 text-center">
             <Button
               variant="outline"
               size="lg"
@@ -280,6 +285,68 @@ export default async function Home() {
             >
               <Link href="/conditions">View All Conditions</Link>
             </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── TREATMENTS SECTION ─── */}
+      <section className="py-24 bg-slate-50 border-y border-slate-200">
+        <div className="container mx-auto px-4 md:px-6">
+          <ScrollReveal>
+            <div className="text-center max-w-3xl mx-auto mb-16">
+              <h2 className="text-3xl md:text-4xl font-heading font-bold text-slate-900 mb-4">
+                Advanced Urological Treatments
+              </h2>
+              <p className="text-lg text-slate-600">
+                We provide state-of-the-art surgical and non-surgical solutions
+                for all urological conditions using minimally invasive techniques.
+              </p>
+            </div>
+          </ScrollReveal>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {treatments.slice(0, 3).map((treatment) => (
+              <Link
+                key={treatment.slug}
+                href={`/treatments/${treatment.slug}`}
+                className="block h-full"
+              >
+                <Card className="h-full border-slate-100 shadow-sm transition-all duration-300 ease-in-out hover:-translate-y-2 hover:shadow-xl hover:border-blue-200 group cursor-pointer overflow-hidden flex flex-col">
+                  {treatment.frontmatter.image && (
+                    <div className="aspect-[16/9] w-full relative bg-slate-100 border-b border-slate-100 overflow-hidden">
+                      <Image
+                        src={treatment.frontmatter.image}
+                        alt={treatment.frontmatter.title}
+                        fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        className="object-cover group-hover:scale-105 transition-transform duration-300"
+                        unoptimized
+                      />
+                    </div>
+                  )}
+                  <CardHeader className="flex-1">
+                    {!treatment.frontmatter.image && (
+                      <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center mb-4 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                        <ShieldCheck className="w-6 h-6" />
+                      </div>
+                    )}
+                    <CardTitle>{treatment.frontmatter.title}</CardTitle>
+                    <CardDescription className="text-base pt-2 line-clamp-3">
+                      {treatment.frontmatter.summary}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="mt-auto pt-4 border-t border-slate-50">
+                    <span className="text-primary font-medium flex items-center gap-2 group-hover:underline">
+                      View procedure{" "}
+                      <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                    </span>
+                  </CardContent>
+                </Card>
+              </Link>
+            ))}
+          </div>
+
+          <div className="mt-12 text-center">
             <Button
               variant="outline"
               size="lg"
