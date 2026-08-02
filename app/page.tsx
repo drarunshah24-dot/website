@@ -61,10 +61,17 @@ interface FaqFrontmatter {
   category?: string;
 }
 
+interface ConditionFrontmatter {
+  title: string;
+  summary: string;
+  image?: string;
+}
+
 export default async function Home() {
   const clinicSchema = buildMedicalClinicSchema();
   const physicianSchema = buildPhysicianSchema();
   const books = await getAllMdx<BookFrontmatter>("books");
+  const conditions = await getAllMdx<ConditionFrontmatter>("conditions");
   const galleryRaw = await getAllMdx<GalleryFrontmatter>("gallery");
   const galleryItems = galleryRaw.map((g) => ({
     title: g.frontmatter.title || "Facility Photo",
@@ -223,80 +230,56 @@ export default async function Home() {
           </ScrollReveal>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {/* Card 1: Kidney Stones — Droplets icon */}
-            <Link href="/conditions/kidney-stones" className="block h-full">
-              <Card className="h-full border-slate-100 shadow-sm transition-all duration-300 ease-in-out hover:-translate-y-2 hover:shadow-xl hover:border-blue-200 group cursor-pointer">
-                <CardHeader>
-                  <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center mb-4 group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                    <Droplets className="w-6 h-6" />
-                  </div>
-                  <CardTitle>Kidney Stones (Patthari)</CardTitle>
-                  <CardDescription className="text-base pt-2">
-                    Advanced laser surgery for kidney stones without large
-                    incisions, ensuring faster recovery.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <span className="text-primary font-medium flex items-center gap-2 group-hover:underline">
-                    Learn more{" "}
-                    <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-                  </span>
-                </CardContent>
-              </Card>
-            </Link>
-
-            {/* Card 2: Prostate — ShieldCheck icon */}
-            <Link
-              href="/conditions/prostate-enlargement"
-              className="block h-full"
-            >
-              <Card className="h-full border-slate-100 shadow-sm transition-all duration-300 ease-in-out hover:-translate-y-2 hover:shadow-xl hover:border-blue-200 group cursor-pointer">
-                <CardHeader>
-                  <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center mb-4 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
-                    <ShieldCheck className="w-6 h-6" />
-                  </div>
-                  <CardTitle>Prostate Enlargement (Pesab ko samasya)</CardTitle>
-                  <CardDescription className="text-base pt-2">
-                    Minimally invasive laser treatments (HoLEP/TURP) for
-                    enlarged prostate and urinary issues.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <span className="text-primary font-medium flex items-center gap-2 group-hover:underline">
-                    Learn more{" "}
-                    <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-                  </span>
-                </CardContent>
-              </Card>
-            </Link>
-
-            {/* Card 3: Male Sexual Health — UserRound icon */}
-            <Link
-              href="/conditions/male-sexual-health"
-              className="block h-full"
-            >
-              <Card className="h-full border-slate-100 shadow-sm transition-all duration-300 ease-in-out hover:-translate-y-2 hover:shadow-xl hover:border-blue-200 group cursor-pointer">
-                <CardHeader>
-                  <div className="w-12 h-12 bg-violet-50 text-violet-600 rounded-xl flex items-center justify-center mb-4 group-hover:bg-violet-600 group-hover:text-white transition-colors">
-                    <UserRound className="w-6 h-6" />
-                  </div>
-                  <CardTitle>Male Sexual Health</CardTitle>
-                  <CardDescription className="text-base pt-2">
-                    Confidential and expert care for erectile dysfunction, male
-                    infertility, and related conditions.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <span className="text-primary font-medium flex items-center gap-2 group-hover:underline">
-                    Learn more{" "}
-                    <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-                  </span>
-                </CardContent>
-              </Card>
-            </Link>
+            {conditions.slice(0, 3).map((condition) => (
+              <Link
+                key={condition.slug}
+                href={`/conditions/${condition.slug}`}
+                className="block h-full"
+              >
+                <Card className="h-full border-slate-100 shadow-sm transition-all duration-300 ease-in-out hover:-translate-y-2 hover:shadow-xl hover:border-blue-200 group cursor-pointer overflow-hidden flex flex-col">
+                  {condition.frontmatter.image && (
+                    <div className="aspect-[16/9] w-full relative bg-slate-100 border-b border-slate-100 overflow-hidden">
+                      <Image
+                        src={condition.frontmatter.image}
+                        alt={condition.frontmatter.title}
+                        fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        className="object-cover group-hover:scale-105 transition-transform duration-300"
+                        unoptimized
+                      />
+                    </div>
+                  )}
+                  <CardHeader className="flex-1">
+                    {!condition.frontmatter.image && (
+                      <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center mb-4 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                        <Droplets className="w-6 h-6" />
+                      </div>
+                    )}
+                    <CardTitle>{condition.frontmatter.title}</CardTitle>
+                    <CardDescription className="text-base pt-2 line-clamp-3">
+                      {condition.frontmatter.summary}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="mt-auto pt-4 border-t border-slate-50">
+                    <span className="text-primary font-medium flex items-center gap-2 group-hover:underline">
+                      Learn more{" "}
+                      <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                    </span>
+                  </CardContent>
+                </Card>
+              </Link>
+            ))}
           </div>
 
-          <div className="mt-12 text-center">
+          <div className="mt-12 text-center flex flex-wrap justify-center gap-4">
+            <Button
+              variant="outline"
+              size="lg"
+              asChild
+              className="rounded-full"
+            >
+              <Link href="/conditions">View All Conditions</Link>
+            </Button>
             <Button
               variant="outline"
               size="lg"
@@ -327,7 +310,7 @@ export default async function Home() {
               </p>
             </div>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-4xl mx-auto">
-              {books.map((book) => (
+              {books.slice(0, 3).map((book) => (
                 <Link
                   key={book.slug}
                   href={`/books/${book.slug}`}
@@ -344,6 +327,7 @@ export default async function Home() {
                         width={400}
                         height={600}
                         className="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-500"
+                        unoptimized
                       />
                     </div>
                     <div className="p-6 flex-1 flex flex-col justify-between">
@@ -363,6 +347,17 @@ export default async function Home() {
                   </div>
                 </Link>
               ))}
+            </div>
+
+            <div className="mt-12 text-center">
+              <Button
+                variant="outline"
+                size="lg"
+                asChild
+                className="rounded-full"
+              >
+                <Link href="/books">View All Publications</Link>
+              </Button>
             </div>
           </div>
         </section>
