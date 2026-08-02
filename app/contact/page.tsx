@@ -4,6 +4,7 @@ import { MapPin, Phone, Mail, Clock, Calendar } from "lucide-react";
 import Image from "next/image";
 import { getPageContent } from "@/lib/pageContent";
 import { ContactData } from "@/components/admin/ContactForm";
+import { ContactFormWidget } from "@/components/ContactFormWidget";
 
 export const dynamic = "force-dynamic";
 
@@ -238,6 +239,11 @@ export default async function ContactPage() {
                   </div>
                 </div>
               </div>
+            </div>
+
+            {/* Interactive Written Contact Form */}
+            <div className="mt-12">
+              <ContactFormWidget />
             </div>
           </div>
         </div>

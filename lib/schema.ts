@@ -64,6 +64,20 @@ export function buildMedicalClinicSchema() {
         closes: "17:00",
       },
     ],
+    contactPoint: [
+      {
+        "@type": "ContactPoint",
+        telephone: "+9779744427743",
+        contactType: "customer service",
+        availableLanguage: ["English", "Nepali", "Hindi", "Maithili"],
+      },
+      {
+        "@type": "ContactPoint",
+        telephone: "+9779814834756",
+        contactType: "emergency",
+        availableLanguage: ["English", "Nepali", "Hindi", "Maithili"],
+      },
+    ],
     medicalSpecialty: ["Urology"],
   };
 }
