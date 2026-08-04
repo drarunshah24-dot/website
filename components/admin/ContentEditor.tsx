@@ -377,28 +377,29 @@ export default function ContentEditor({
               </div>
             )}
 
-            {activeSection !== "books" && activeSection !== "gallery" && (
-              <div data-color-mode="light">
+            {activeSection !== "gallery" && (
+              <div data-color-mode="light" className="space-y-2">
                 <label className="mb-3 block text-xs font-semibold uppercase tracking-wider text-slate-500">
                   Write Your Content
                 </label>
-                <div className="overflow-hidden rounded-2xl border border-slate-200 shadow-sm">
+                <div className="overflow-hidden rounded-2xl border border-slate-200 shadow-sm bg-white">
                   <MDEditor
-                    value={currentItem.body}
+                    value={currentItem.body || ""}
                     onChange={(val) =>
                       setCurrentItem({ ...currentItem, body: val || "" })
                     }
                     preview="edit"
-                    height={400}
+                    height={450}
                     className="w-full"
                     textareaProps={{
-                      placeholder: "Start writing your content here...",
+                      placeholder:
+                        "Start writing your article or guide content here...",
                     }}
                   />
                 </div>
                 <p className="mt-2 text-xs text-slate-500">
-                  Use the toolbar above to make text bold, italic, or create
-                  lists.
+                  Use the toolbar above to format headings, make text
+                  bold/italic, add links, bullet lists, or tables.
                 </p>
               </div>
             )}
