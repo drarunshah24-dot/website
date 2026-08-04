@@ -5,6 +5,7 @@ import Image from "next/image";
 import { getPageContent } from "@/lib/pageContent";
 import { ContactData } from "@/components/admin/ContactForm";
 import { ContactFormWidget } from "@/components/ContactFormWidget";
+import { getCleanGoogleMapEmbedUrl } from "@/lib/mapUrl";
 
 export const dynamic = "force-dynamic";
 
@@ -253,7 +254,7 @@ export default async function ContactPage() {
       <section className="h-[450px] w-full bg-slate-100 relative border-t border-slate-200">
         <iframe
           title="National Urology Center Janakpur Map"
-          src={data.map.iframeSrc}
+          src={getCleanGoogleMapEmbedUrl(data.map.iframeSrc)}
           width="100%"
           height="100%"
           style={{ border: 0 }}
@@ -262,6 +263,17 @@ export default async function ContactPage() {
           referrerPolicy="no-referrer-when-downgrade"
           className="w-full h-full"
         />
+        <div className="absolute bottom-4 right-4 z-10">
+          <a
+            href="https://maps.app.goo.gl/PWJF+Q2C"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-white/95 backdrop-blur-md text-slate-800 font-semibold text-xs rounded-xl shadow-md border border-slate-200 hover:bg-slate-50 transition-all"
+          >
+            <MapPin className="w-4 h-4 text-primary" />
+            Open in Google Maps App
+          </a>
+        </div>
       </section>
     </>
   );

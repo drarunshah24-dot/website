@@ -136,9 +136,9 @@ export function AboutForm() {
 
   useEffect(() => {
     fetch("/api/admin/content?type=about&_ts=" + Date.now())
-      .then((res) => res.json())
+      .then((res) => (res.ok ? res.json() : null))
       .then((resData) => {
-        if (resData.success && resData.data) {
+        if (resData && resData.success && resData.data) {
           setData((prev) => ({
             ...prev,
             ...resData.data,
