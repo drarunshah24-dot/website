@@ -39,9 +39,10 @@ const PHONE_NUMBER = "+9779744427743";
 
 export const dynamic = "force-static";
 export const metadata = generateMetadata({
-  title: "National Urology Center - Dr. Arun Shah | Janakpur",
+  title:
+    "Best Urologist in Janakpur, Nepal | Dr. Arun Shah - National Urology Center",
   description:
-    "World-Class Urology Care in Janakpur by Dr. Arun Shah. Specializing in advanced laser surgery, kidney stones, and prostate health.",
+    "Consult Dr. Arun Shah, the best urologist in Janakpur, Nepal. Gold Medalist urologist specializing in advanced laser surgery for kidney stones (RIRS, HoLEP), prostate treatments, & male health.",
 });
 
 interface BookFrontmatter {
@@ -229,7 +230,8 @@ export default async function Home() {
                 Common Urological Conditions
               </h2>
               <p className="text-lg text-slate-600">
-                Explore comprehensive information on various urological conditions to better understand your symptoms.
+                Explore comprehensive information on various urological
+                conditions to better understand your symptoms.
               </p>
             </div>
           </ScrollReveal>
@@ -299,7 +301,8 @@ export default async function Home() {
               </h2>
               <p className="text-lg text-slate-600">
                 We provide state-of-the-art surgical and non-surgical solutions
-                for all urological conditions using minimally invasive techniques.
+                for all urological conditions using minimally invasive
+                techniques.
               </p>
             </div>
           </ScrollReveal>

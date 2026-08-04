@@ -9,9 +9,9 @@ import { AboutData } from "@/components/admin/AboutForm";
 export const dynamic = "force-dynamic";
 
 export const metadata = generateMetadata({
-  title: "About Dr. Arun Shah | National Urology Center",
+  title: "About Dr. Arun Shah | Best Urologist in Janakpur, Nepal",
   description:
-    "Learn about Dr. Arun Shah, Gold Medalist Urologist in Janakpur. Over a decade of experience in advanced laser surgeries and comprehensive urological care.",
+    "Learn about Dr. Arun Shah, Gold Medalist and best urologist in Janakpur, Nepal. M.Ch Urology, MS Surgery, MBBS. Expert in laser kidney stone and prostate surgery.",
   type: "profile",
 });
 

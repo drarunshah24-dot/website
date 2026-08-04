@@ -10,9 +10,9 @@ import { getCleanGoogleMapEmbedUrl } from "@/lib/mapUrl";
 export const dynamic = "force-dynamic";
 
 export const metadata = generateMetadata({
-  title: "Contact Us | National Urology Center",
+  title: "Contact Dr. Arun Shah | Best Urologist in Janakpur, Nepal",
   description:
-    "Get in touch with National Urology Center in Janakpur. Call us for expert urological care, appointments, and emergency care.",
+    "Book an appointment with Dr. Arun Shah, the best urologist in Janakpur, Nepal. National Urology Center, Near Dashrath Pond, Janakpurdham-06. Phone: +977-9744427743.",
 });
 
 const DEFAULT_CONTACT_DATA: ContactData = {
