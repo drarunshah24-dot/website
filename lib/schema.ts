@@ -5,9 +5,14 @@ export function buildPhysicianSchema() {
     "@context": "https://schema.org",
     "@type": "Physician",
     name: "Dr. Arun Shah",
-    alternateName: "Dr. Arun Kumar Shah",
+    alternateName: [
+      "Dr. Arun Kumar Shah",
+      "Best Urologist in Janakpur",
+      "Best Urologist in Janakpur Nepal",
+      "Urologist in Janakpurdham",
+    ],
     description:
-      "Gold Medalist Urologist specializing in advanced laser surgery, kidney stones, and prostate treatments in Janakpur.",
+      "Gold Medalist Urologist specializing in advanced laser surgery, kidney stones, and prostate treatments in Janakpur, Nepal.",
     url: `${BASE_URL}/about`,
     image: `${BASE_URL}/dr-arun-shah-urologist-janakpur.jpg`,
     jobTitle: "Senior Consultant Urologist",
